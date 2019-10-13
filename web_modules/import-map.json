@@ -1,0 +1,10 @@
+{
+  "imports": {
+    "vue/dist/vue.esm.browser": "./vue/dist/vue.esm.browser.js",
+    "http-vue-loader/src/httpVueLoader": "./http-vue-loader/src/httpVueLoader.js",
+    "remarkable/dist/esm/index.browser": "./remarkable/dist/esm/index.browser.js",
+    "typeit/dist/typeit.min": "./typeit/dist/typeit.min.js",
+    "vue-router/dist/vue-router.esm.browser": "./vue-router/dist/vue-router.esm.browser.js",
+    "aframe/dist/aframe-v0.9.2.min": "./aframe/dist/aframe-v0.9.2.min.js"
+  }
+}

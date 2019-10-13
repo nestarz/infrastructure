@@ -1,0 +1,21 @@
+taskforceAgencies:
+  - name: The Northern California Illicit Digital Economy (NCIDE) Task Force
+    details:
+      - description: Darknet Markets Vendors arrested (DNMs)
+        list:
+          - Farmacy41
+          - sicknessVersion2 a/k/a 23MightyMouse23
+          - Houseofdank a/k/a BestBuyMeds a/k/a TrapMart
+          - DankStix
+          - BudgetBudsExpress
+          - CokeWave
+          - SafeDealsDirect
+          - Cannabars a/k/a thefastplug
+          - PhantomLabs
+          - Diablow a/k/a raiseappeals a/k/a RaisedByDiablow
+          - CaliCartel a/k/a Playground a/k/a GaminoCrimeFamily a/k/a - DopeQueen
+          - DrFrosty a/k/a Bulletproof-Packs
+          - guessguess
+
+marketPlaces:
+  - name: Empire Market
