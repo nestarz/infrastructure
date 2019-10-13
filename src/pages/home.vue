@@ -1,24 +1,40 @@
 <template>
   <div class="home">
+    <div class="overlay">
+      <earth></earth>
+    </div>
     <router-link to="/anon/">Anonymous</router-link>
-    <router-link to="/slides/">Slides</router-link>
-    <router-link to="/a1/">A1</router-link>
-    <router-link to="/notes/">Notes</router-link>
-    <router-link to="/timeline/">Timeline</router-link>
   </div>
 </template>
 
 <script>
 module.exports = {
-  components: {}
+  components: {
+    earth: httpVueLoader("src/components/earth.vue")
+  }
 };
 </script>
 
 <style scoped>
 .home {
+  background: dimgrey;
   display: flex;
-  justify-content: center;
+  justify-content: flex-end;
   align-items: center;
   flex-direction: column;
+  padding: 1em;
+}
+
+.overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  bottom: 0;
+  right: 0;
+  z-index: 0;
+}
+
+a {
+  z-index: 1;
 }
 </style>

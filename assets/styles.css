@@ -18,10 +18,11 @@
 
 body,
 html {
-  font-family: Messapia, Arial, Helvetica, sans-serif;
+  font-family: Lexend, Arial, Helvetica, sans-serif;
   margin: 0;
   padding: 0;
-  background: blue;
+  background: black;
+  color: #fff;
 }
 
 html {
@@ -39,4 +40,5 @@ body > * {
 
 a {
   color: #fff;
+  text-decoration: none;
 }

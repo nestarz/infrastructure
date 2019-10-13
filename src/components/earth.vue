@@ -1,7 +1,7 @@
 <template>
-  <div class="notes">
+  <div class="earth">
     <div class="title">
-      10.13.2019 ---------------------------------------------------------------- how to live together ? ---------------------------------------------------------------- design academy of eindhoven ---------------------------------------------------------------- about
+      &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; 10.13.2019 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; infrastructure &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; design academy of eindhoven &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
     </div>
     <div class="map">
       <composable-map :projection="projection" :projection-config="projectionConfig">
@@ -12,8 +12,8 @@
                 v-for="geo in geographies"
                 :key="geo.rsmKey"
                 :geography="geo"
-                :fill="Math.random() > 0.999 ? 'rgba(0,0,255,0.5)' : 'rgba(0,0,200,0.5)'"
-                stroke="midnightblue"
+                :fill="`rgba(110,0,110,${Math.random() - 0.1})`"
+                stroke="rgb(110,0,110)"
               ></geography>
             </template>
           </geographies>
@@ -39,16 +39,13 @@
 <script>
 const simpleMapImport = name => async () => {
   const simpleMapModule = await import(
-    "http://localhost:63994/dist/index.es.js"
+    "https://raw.githack.com/nestarz/vue-simple-maps/master/dist/index.es.min.js"
   );
   return simpleMapModule[name];
 };
 
 const projections = [
-  "geoEqualEarth",
   "geoMercator",
-  "geoOrthographic",
-  "geoConicConformal"
 ];
 
 module.exports = {
@@ -61,25 +58,13 @@ module.exports = {
   data() {
     return {
       projectionConfig: {
-        rotate: [58.0, 20.0],
+        rotate: [Math.random() * 158.0, Math.random() * 158.0],
         scale: 300
       },
       projection: projections[Math.floor(Math.random() * projections.length)],
       geoUrl:
         "https://raw.githubusercontent.com/zcreativelabs/react-simple-maps/master/topojson-maps/world-110m.json"
     };
-  },
-  mounted() {
-    let index = 0;
-    setInterval(() => {
-      const [x, y] = this.projectionConfig.rotate;
-      this.projectionConfig.rotate = [x + 0.4, y];
-    }, 100);
-    setInterval(() => {
-      this.projection = projections[index];
-      index = index ? index - 1 : projections.length - 1;
-      console.log(this.projection);
-    }, 4000);
   }
 };
 </script>
