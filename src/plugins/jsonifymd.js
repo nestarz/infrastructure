@@ -85,7 +85,7 @@ const extractInline = (nodes, raw) => {
 }
 
 const toDict = (nodes) => (Array.isArray(nodes) && nodes[0].heading) ? Object.assign(
-  ...nodes.map(({ heading, childs }) => ({ [heading]: childs[0] ? toDict(childs) : null }))) : nodes;
+  ...nodes.map(({ heading, childs }) => ({ [heading]: childs ? toDict(childs) : null }))) : nodes;
 
 const extract = (nodes) => {
   return nodes.map(node => {
@@ -101,7 +101,6 @@ const extract = (nodes) => {
     }
 
     if (node.nodes) {
-      console.log(extractInline(node.nodes));
       return extractInline(node.nodes);
     }
 
@@ -114,7 +113,6 @@ const jsonifymd = async (markdown_file) => {
   const data = await response.text();
 
   const output = ast(data);
-  console.log(output);
   const headings = nest(output.nodes);
   const output2 = extract(headings);
   return toDict(output2);
