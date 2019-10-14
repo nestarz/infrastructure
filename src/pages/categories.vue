@@ -1,21 +1,16 @@
 <template>
-  <div class="home">
-    <div class="overlay">
-      <earth></earth>
-    </div>
-    <router-link
-      v-for="route in $router.options.routes"
-      :key="route.path"
-      :to="route.path"
-    >{{ route.name || route.path }}</router-link>
-  </div>
+  <div class="home"></div>
 </template>
 
 <script>
 module.exports = {
-  components: {
-    earth: httpVueLoader("src/components/earth.vue")
-  },
+  components: {},
+  mounted() {
+    import("/src/plugins/jsonifymd.js").then(async ({ default: JsonifyMd }) => {
+      const result = await JsonifyMd("/assets/markdown/test.md");
+      console.log(result);
+    });
+  }
 };
 </script>
 

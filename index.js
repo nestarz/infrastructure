@@ -13,18 +13,12 @@ Vue.use(VueRemarkable);
 Vue.use(VueTypeIt);
 Vue.use(VueDrag);
 
-const router = new VueRouter({
-  routes: [
-    { path: "/", component: httpVueLoader("./src/pages/home.vue") },
-    { path: "/slides/", component: httpVueLoader("./src/pages/slides.vue") },
-    { path: "/a1/", component: httpVueLoader("./src/pages/a1.vue") },
-    { path: "/anon/", component: httpVueLoader("./src/pages/anon.vue") },
-    { path: "/notes/", component: httpVueLoader("./src/pages/notes.vue") },
-    { path: "/timeline/", component: httpVueLoader("./src/pages/timeline.vue") },
-  ]
-});
+const routes = [
+  { path: "/", component: httpVueLoader("./src/pages/home.vue") },
+  { path: "/categories", component: httpVueLoader("./src/pages/categories.vue") },
+];
 
 new Vue({
-  router: router,
+  router: new VueRouter({ routes }),
   template: "<router-view></router-view>"
 }).$mount("#app");

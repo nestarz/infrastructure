@@ -26,10 +26,7 @@ Litecoin, Dogecoin, Darkcoin and Monero. Cryptocurrencies are online currencies 
 cryptographic protocol that allows them to be spent and received. Each of these currencies is decentralised, meaning that transactions are approved through a community of
 users, instead of a designated authority. 
 
-This feature means that the transactions cannot
-be regulated by law enforcement or similar actors e.g., transactions cannot be blocked
-or accounts closed in the same way that PayPal, for instance, will freeze accounts they
-suspect are linked to illegal activity.
+This feature means that the transactions cannot be regulated by law enforcement or similar actors e.g., transactions cannot be blocked or accounts closed in the same way that PayPal, for instance, will freeze accounts they suspect are linked to illegal activity.
 
 ## Government Task Forces
 Police all over the world have deployed a wide array of different techniques to identify and ultimately convict dark web drug dealers, weapon buyers, child pornographers, whistleblowers, political opponents and more in the past several years.
