@@ -1,0 +1,261 @@
+---
+- heading: Awesome Privacy
+  childs:
+  - heading: '0'
+    childs:
+    - url: https://github.com/sindresorhus/awesome
+    - Limiting personal data leaks on the internet
+    - "<!-- TOC -->"
+    - url: "#awesome-privacy"
+      text: Awesome Privacy
+    - url: "#anonymous-web-browsing"
+      text: Anonymous web browsing
+    - url: "#domain-registration"
+      text: Domain registration
+    - url: "#vpn"
+      text: VPN
+    - url: "#mix-networks-tor-etc"
+      text: Mix networks (Tor, etc.)
+    - url: "#http-proxies"
+      text: Http proxies
+    - url: "#browser-testing"
+      text: Browser testing
+    - url: "#search-engines"
+      text: Search engines
+    - url: "#web-browsers"
+      text: Web browsers
+    - url: "#extensions--plugins-for-web-browsers"
+      text: Extensions & plugins for web browsers
+    - url: "#host-file-optimizations"
+      text: Host file optimizations
+    - url: "#linux-distros"
+      text: Linux distros
+    - url: "#communication"
+      text: Communication
+    - url: "#chat"
+      text: Chat
+    - url: "#video"
+      text: Video
+    - url: "#email"
+      text: Email
+    - url: "#password-managment"
+      text: Password managment
+    - url: "#burner-electronics"
+      text: Burner electronics
+    - url: "#payment"
+      text: Payment
+    - url: "#file-hosting"
+      text: File hosting
+    - url: "#backup"
+      text: Backup
+    - url: "#blogs"
+      text: Blogs
+    - url: "#contribute"
+      text: Contribute
+    - url: "#license"
+      text: License
+  - heading: Anonymous web browsing
+    childs:
+    - heading: '0'
+      childs:
+      - Hide your IP address
+    - heading: Domain registration
+      childs:
+      - url: https://njal.la/
+        text: njal.la
+    - heading: VPN
+      childs:
+      - url: https://thatoneprivacysite.net/simple-vpn-comparison-chart/
+        text: VPN comparison
+      - url: https://gist.github.com/glennschler/63e3c3f93038cddb5204
+        text: Docker AWS VPN
+      - url: https://www.digitalocean.com/community/tutorials/how-to-set-up-an-openvpn-server-on-ubuntu-16-04
+        text: DigitalOcean self hosted VPN
+    - heading: Mix networks (Tor, etc.)
+      childs:
+      - url: https://www.torproject.org
+        text: Tor project
+      - url: https://www.torproject.org/docs/tor-doc-relay.html.en
+        text: How to setup Tor relay
+      - url: https://panoramix-project.eu/
+        text: Panoramix
+      - url: https://geti2p.net/en/
+        text: The Invisible Internet Project (I2P)
+    - heading: Http proxies
+      childs:
+      - url: https://www.defcon.org/images/defcon-17/dc-17-presentations/defcon-17-edward_zaborowski-doppelganger.pdf
+        text: Don't use http proxies
+    - heading: Browser testing
+      childs:
+      - url: http://whatismyipaddress.com/
+        text: What is my IP address
+      - url: https://panopticlick.eff.org/tracker
+        text: EFF browser privacy test
+      - url: https://ipinfo.info/html/privacy-check.php
+        text: Privacy checkup
+      - url: https://tenta.com/test/
+        text: Privacy test by Tenta
+  - heading: Search engines
+    childs:
+    - url: https://duckduckgo.com
+      text: DuckDuckGo
+    - url: https://www.ixquick.com/
+      text: Ixquick
+    - url: https://ahmia.fi
+      text: Ahmia
+    - url: https://haveibeenpwned.com
+      text: Have I been pwned?
+  - heading: Web browsers
+    childs:
+    - heading: '0'
+      childs:
+      - url: https://www.torproject.org/projects/torbrowser.html.en
+        text: Tor browser
+      - url: https://www.epicbrowser.com
+        text: Epic browser
+      - url: https://netrunner.cc
+        text: Net runner
+      - url: https://cliqz.com
+        text: Cliqz
+      - url: https://www.mozilla.org/en-US/firefox/new/
+        text: Firefox
+    - heading: Extensions & plugins for web browsers
+      childs:
+      - url: https://chrome.google.com/webstore/detail/user-agent-switcher-for-c/djflhoibgkdhkhhcedjiklpkjnoahfmg?hl=en-US
+        text: User agent changer
+      - url: https://www.eff.org/privacybadger
+        text: Privacy badger - EFF
+      - url: https://www.eff.org/https-everywhere
+        text: HTTPS everywhere - EFF
+      - url: https://www.hotcleaner.com/clickclean_chrome.html
+        text: Click&Clean
+      - url: https://www.mozilla.org/en-US/firefox/focus/
+        text: Firefox Focus browser
+      - url: https://1.1.1.1/
+        text: DNS service
+      - url: https://addons.mozilla.org/en-US/firefox/addon/canvasblocker/
+        text: CanvasBlocker (FF)
+      - url: https://addons.mozilla.org/en-US/firefox/addon/cookie-autodelete/
+        text: Cookie AutoDelete
+      - url: https://ffprofile.com/
+        text: Firefox Profilemaker
+  - heading: Host file optimizations
+    childs:
+    - url: http://someonewhocares.org/hosts/
+      text: How to make the internet not suck (as much)
+    - url: https://github.com/StevenBlack/hosts
+      text: Hosts (GitHub project)
+  - heading: Linux distros
+    childs:
+    - url: https://tails.boum.org/
+      text: Tails OS
+    - url: https://www.qubes-os.org/
+      text: Qubes OS
+    - url: http://www.ipredia.org/
+      text: ipredia
+    - url: https://www.whonix.org/
+      text: Whonix
+    - url: https://www.privacy-cd.org/
+      text: Discreete Linux
+  - heading: Communication
+    childs:
+    - heading: Chat
+      childs:
+      - url: https://whispersystems.org/
+        text: Signal
+      - url: https://wire.com
+        text: Wire
+    - heading: Video
+      childs:
+      - url: https://jitsi.org/
+        text: jitzi
+    - heading: Email
+      childs:
+      - url: https://nbox.notif.me/
+        text: Nbox
+      - url: http://improvmx.com/
+        text: Improvmx
+      - url: http://www.yopmail.com/en/email-generator.php
+        text: Yopmail
+      - url: https://www.mailinator.com/
+        text: Mailinator
+      - url: http://www.throwawaymail.com/
+        text: Throw Away Mail
+      - url: https://protonmail.com/
+        text: ProtonMail
+      - url: https://mailfence.com
+        text: Mailfence
+      - url: https://tutanota.com
+        text: Tutanota
+      - url: https://mailbox.org
+        text: Mailbox.org
+      - url: https://mailinabox.email/
+        text: Mail-in-a-box
+    - heading: Password managment
+      childs:
+      - url: https://www.lastpass.com/
+        text: LastPass
+      - url: https://1password.com/
+        text: 1Password
+      - url: http://keepass.info/
+        text: Keepass
+      - url: https://www.passbolt.com/
+        text: Passbolt
+      - url: https://www.passwordstore.org/
+        text: PasswordStore
+      - url: https://bitwarden.com
+        text: BitWarden
+      - url: https://lesspass.com/
+        text: LessPass
+    - heading: Burner electronics
+      childs:
+      - url: https://craigslist.com
+        text: Craigslist
+      - url: https://www.freecycle.org/
+        text: Freecycle
+    - heading: Payment
+      childs:
+      - url: https://localbitcoins.com/
+        text: Localbitcoins
+      - url: https://bitcoin.org/en/download
+        text: Bitcoin Core
+      - url: https://bitlaunder.com/
+        text: Bit Launderer
+      - url: https://bitpay.com/card/
+        text: BTC Prepaid Credit Card
+      - url: https://en.wikipedia.org/wiki/List_of_cryptocurrencies
+        text: List of cryptocurrencies (wikipedia)
+      - url: https://bitcoin-otc.com/
+        text: Over the counter btc
+      - url: https://en.bitcoin.it/wiki/CoinJoin
+        text: CoinJoin
+  - heading: File hosting
+    childs:
+    - heading: Backup
+      childs:
+      - url: https://synqion.com
+        text: Synqion (Formerly TeamDrive)
+      - url: https://tresorit.com
+        text: Tresorit
+      - url: https://spideroak.com
+        text: SpiderOak
+      - url: https://nextcloud.com
+        text: NextCloud
+      - url: https://leastauthority.com/
+        text: Least Authority S4
+  - heading: Blogs
+    childs:
+    - url: https://blog.mozilla.org/internetcitizen/2017/08/29/do-you-need-a-vpn/
+      text: Do you need a vpn? (mozilla)
+    - url: http://12bytes.org/tech/firefox/firefoxgecko-configuration-guide-for-privacy-and-performance-buffs
+      text: Firefox privacy guide
+    - url: https://web.archive.org/web/20180807021324/https://gacallea.github.io/posts/a-better-online-experience/
+      text: A Better Online Experience
+    - url: https://restoreprivacy.com/google-alternatives/
+      text: Google alternatives
+  - heading: Contribute
+    childs:
+    - Contributions welcome! Read the [contribution guidelines](contributing.md) first.
+  - heading: License
+    childs:
+    - url: https://creativecommons.org/licenses/by-nc-sa/4.0/
