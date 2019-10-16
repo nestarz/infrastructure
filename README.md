@@ -22,3 +22,5 @@ while stack not empty
   screenshot website
   stack = stack + extractlinks website
 ```
+
+In order to speed up the crawling, multiple instances of the crawler can be launched, this is done using only one browser and multiple pages.
