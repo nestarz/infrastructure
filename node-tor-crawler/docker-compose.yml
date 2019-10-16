@@ -1,0 +1,19 @@
+  
+version: '3'
+services:
+  browser:
+    tty: true
+    build:
+      context: .
+      dockerfile: ./puppeteer/Dockerfile
+    volumes:
+      - "./puppeteer/:/app/"
+      - "./screenshots:/screenshots"
+    depends_on:
+      - tor
+  tor:
+    build:
+      context: .
+      dockerfile: ./tor/Dockerfile
+    expose:
+      - "9150"

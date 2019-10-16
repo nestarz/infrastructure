@@ -1,5 +1,6 @@
 <template>
-  <div class="home"></div>
+  <div class="home">
+  </div>
 </template>
 
 <script>
@@ -7,18 +8,8 @@ module.exports = {
   components: {},
   data() {
     return {
-      privacy: {}
-    };
+      };
   },
-  mounted() {
-    import("/src/plugins/jsonifymd.js").then(async ({ default: JsonifyMd }) => {
-      this.privacy = await JsonifyMd(
-        "https://raw.githubusercontent.com/KevinColemanInc/awesome-privacy/master/readme.md",
-        { toDict: true }
-      );
-      console.log(this.privacy);
-    });
-  }
 };
 </script>
 
