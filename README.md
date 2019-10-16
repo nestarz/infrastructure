@@ -11,3 +11,14 @@ From this website the crawler gather links to other websites and put them at the
 The crawler also takes screenshot of visited websites and blur each images, to prevent any harmful material being shown.
 The crawler only accept html, stylesheets, images and fonts, other ressources requests, like scripts are intercepted and aborted to prevent any unwanted exposure.
 
+Here is the pseudo-code:
+
+```
+stack = daniel_websites
+
+while stack not empty
+  website = pop stack
+  visit website
+  screenshot website
+  stack = stack + extractlinks website
+```
