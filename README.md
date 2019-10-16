@@ -3,6 +3,7 @@
 ## Dark Crawler
 
 > Most hidden wikis are just scam directories. The sights that do not work are most likely just forgotten about sites that have went down. If you want to actually explore onions, find **Daniel's directory link**. I would give it to you, but I don't have it.
+> -- <cite>reddit, [ewna843](https://www.reddit.com/r/TOR/comments/cp59a5/is_there_any_way_to_make_more_of_the_hidden_wiki/ewna843/)</cite>
 
 The crawler gather onions from Daniel's directory and put them in a stack.
 While the stack is filled, the crawler pop website from the stack and visit some pages of this website. 
