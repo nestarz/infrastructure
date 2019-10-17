@@ -1,6 +1,15 @@
   
 version: '3'
 services:
+  node:
+    restart: always
+    build: 
+      context: .
+      dockerfile: "./classifier/Dockerfile"
+    volumes:
+      - ./classifier/dist:/app/dist
+    ports:
+      - "8080:8080"
   browser:
     tty: true
     build:
@@ -8,9 +17,10 @@ services:
       dockerfile: ./puppeteer/Dockerfile
     volumes:
       - "./puppeteer/:/app/"
-      - "./screenshots:/screenshots"
+      - "./output:/output"
     depends_on:
       - tor
+      - node
   tor:
     build:
       context: .

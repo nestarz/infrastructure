@@ -1,7 +1,16 @@
 const fs = require("fs");
 const puppeteer = require("puppeteer");
+const request_client = require("request-promise-native");
+const Agent = require("socks5-http-client/lib/Agent");
 
 const LEVEL = 1;
+
+const get_url_extension = url =>
+  url
+    .split(/\#|\?/)[0]
+    .split(".")
+    .pop()
+    .trim();
 
 const logger = {
   log: (level, ...input) => LEVEL > level && console.log(...input),
@@ -12,6 +21,8 @@ const logger = {
 const generate_id = (id => () => id++)(0);
 
 const withHttp = url => (!/^https?:\/\//i.test(url) ? `http://${url}` : url);
+
+const timeout = ms => new Promise(resolve => setTimeout(resolve, ms));
 
 const getHostname = url => {
   try {
@@ -59,7 +70,6 @@ const connect = async () =>
       "--disable-infobars",
       "--disable-breakpad",
       //'--ignore-gpu-blacklist',
-      "--window-size=1280,1024", // see defaultViewport
       "--no-sandbox", // meh but better resource comsuption
       "--disable-setuid-sandbox"
     ]
@@ -69,31 +79,61 @@ const goto = async (page, url) => {
   // logger.log(0, "goto...");
   await page.goto(url, {
     waitUntil: "networkidle0",
-    timeout: 30000
+    timeout: 20000
   });
 };
 
+const cp_placeholder = fs.readFileSync("/app/cp-placeholder.base64", "utf8");
 const newPage = async (browser, { eventRequestAbort }) => {
   logger.log(0, "new page...");
   const page = await browser.newPage();
   await page.setViewport({ width: 1024, height: 768 });
 
   await page.setRequestInterception(true);
-  await page.evaluateOnNewDocument(() => {
-    var style = document.createElement("style");
-    style.type = "text/css";
-    style.innerHTML = `img {
-      filter: blur(5px);
-  }`; // the css content goes here
-    document.getElementsByTagName("head")[0].appendChild(style);
-    console.log("LOL");
-  });
-  page.on("request", request => {
+  page.on("request", async request => {
     const ressourceType = request.resourceType();
+    const url = request.url();
+
     if (!["document", "stylesheet", "image", "font"].includes(ressourceType)) {
-      eventRequestAbort(ressourceType);
-      request.abort();
-    } else request.continue();
+      return request.abort();
+    }
+
+    if (
+      ressourceType === "image" &&
+      url.includes(".onion/") &&
+      [".jpg", ".jpeg", ".png", ".webp"].some(ext => url.includes(ext))
+    ) {
+      let base64;
+      try {
+        const imagedlpage = await browser.newPage();
+        const source = await imagedlpage.goto(url);
+        base64 = (await source.buffer()).toString("base64");
+        await imagedlpage.close();
+      } catch (error) {
+        console.log('imagepage eroor');
+        return request.continue();
+      }
+
+      const type = get_url_extension(request.url());
+      const prefix = "data:" + type + ";base64,";
+      const data = prefix + base64;
+
+      const { result: predictions, error } = await request_client({
+        method: "POST",
+        uri: "http://node:8080/nsfw",
+        body: [data],
+        json: true
+      });
+
+      if (!error && (predictions.Porn > 0.3 || predictions.Sexy > 0.3)) {
+        eventRequestAbort({ type: "porn", value: predictions.Porn });
+        console.log("porn material replaced");
+        return request.continue({
+          url: cp_placeholder
+        });
+      }
+    }
+    return request.continue();
   });
 
   return page;
@@ -145,7 +185,6 @@ const getExternalSiteLinks = async (
     for (const link of internal) {
       try {
         await goto(page, link);
-        await blurSensitiveContent(page);
         await page.screenshot({ path: `${dir}/latest.png` });
         allblacklist.push(link);
         subexternal = [
@@ -179,11 +218,7 @@ const save = (value, dir, name) => {
   });
 };
 
-const blurSensitiveContent = async page =>
-  page.addStyleTag({ content: "img {filter: blur(15px);}" });
-
 module.exports = {
-  blurSensitiveContent,
   withHttp,
   generate_id,
   shuffle,

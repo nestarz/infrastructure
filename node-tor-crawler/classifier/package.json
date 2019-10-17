@@ -1,0 +1,17 @@
+{
+  "name": "classifier",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "serve": "supervisor dist/index.js"
+  },
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "fastify": "2.10.0",
+    "@tensorflow/tfjs-node": "^1.2.11",
+    "nsfwjs-node": "^2.1.10",
+    "canvas": "^2.6.1"
+  }
+}

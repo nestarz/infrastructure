@@ -8,7 +8,7 @@ const Tor = (browser, parents = [], id = null) => ({
   page: null,
   stack: [...parents],
   visited: [],
-  currentFolder: `/screenshots/${now}/`,
+  currentFolder: `/output/${now}/`,
   value: [],
   currentItem: {},
   savePush(item) {
@@ -19,7 +19,6 @@ const Tor = (browser, parents = [], id = null) => ({
   async analyze({ id, url }) {
     try {
       await utils.goto(this.page, url);
-      await utils.blurSensitiveContent(this.page);
     } catch (error) {
       return { results: null, error };
     }
@@ -91,14 +90,15 @@ const Tor = (browser, parents = [], id = null) => ({
   async start() {
     utils.mkdir(this.currentFolder);
     this.page = await utils.newPage(this.browser, {
-      eventRequestAbort: ressourceType => {
-        this.currentItem = {
-          ...this.currentItem,
-          ressourceType: {
-            ...this.currentItem.ressourceType,
-            [ressourceType]: (this.currentItem[ressourceType] || 0) + 1
-          }
+      eventRequestAbort: event => {
+        this.currentItem.porn = {
+          ...(this.currentItem.porn || { value: 0, count: 0 })
         };
+        this.currentItem.porn.value =
+          event.value > this.currentItem.porn.value
+            ? event.value
+            : this.currentItem.porn.value;
+        this.currentItem.porn.count = this.currentItem.porn.count + 1;
       }
     });
     await this.browse();
@@ -113,7 +113,7 @@ const Tor = (browser, parents = [], id = null) => ({
       parent: null,
       url: x
     }));
-  const instances = 10;
+  const instances = 5;
   const browser = await utils.connect();
   [...Array(instances).keys()].map(() =>
     Tor(browser, utils.shuffle(parents)).start()
