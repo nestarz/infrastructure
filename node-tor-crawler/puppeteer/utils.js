@@ -1,7 +1,6 @@
 const fs = require("fs");
 const puppeteer = require("puppeteer");
 const request_client = require("request-promise-native");
-const Agent = require("socks5-http-client/lib/Agent");
 
 const LEVEL = 1;
 
@@ -110,7 +109,7 @@ const newPage = async (browser, { eventRequestAbort }) => {
         base64 = (await source.buffer()).toString("base64");
         await imagedlpage.close();
       } catch (error) {
-        console.log('imagepage eroor');
+        console.log("imagepage eroor");
         return request.continue();
       }
 
@@ -208,14 +207,12 @@ const getExternalSiteLinks = async (
   return [...external, ...subexternal];
 };
 
+let logStream;
 const save = (value, dir, name) => {
-  var filename = `${dir}/${name}`;
-  const file = fs.existsSync(filename) ? require(filename) : [];
-  const newvalue = [...file, ...value];
-  fs.writeFile(filename, JSON.stringify(newvalue), function(err) {
-    if (err) return console.log(err);
-    // console.log("writing to " + filename);
-  });
+  const filename = `${dir}/${name}`;
+  logStream = logStream || fs.createWriteStream(filename, { flags: "a" });
+  logStream.write(JSON.stringify(value));
+  logStream.write("\n");
 };
 
 module.exports = {

@@ -9,12 +9,10 @@ const Tor = (browser, parents = [], id = null) => ({
   stack: [...parents],
   visited: [],
   currentFolder: `/output/${now}/`,
-  value: [],
   currentItem: {},
   savePush(item) {
-    this.value.push(item);
-    console.log(`saving ${this.id}-tree.json`);
-    utils.save(this.value, this.currentFolder, `${this.id}-tree.json`);
+    console.log(`saving tree.csv`);
+    utils.save(item, this.currentFolder, `tree.jsonl`);
   },
   async analyze({ id, url }) {
     try {
@@ -52,6 +50,7 @@ const Tor = (browser, parents = [], id = null) => ({
       const link = this.stack.pop();
       this.url = link;
       this.currentItem = {
+        instance: this.id,
         parent: link.parent,
         url: link.url,
         ressourceType: {}
