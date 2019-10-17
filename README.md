@@ -9,7 +9,7 @@ The crawler gather onions from Daniel's directory and put them in a stack.
 While the stack is filled, the crawler pop website from the stack and visit some pages of this website. 
 From this website the crawler gather links to other websites and put them at the end of the stack. They are added only if they have not been visited.
 
-The crawler also takes screenshot of visited websites and blur each images, to prevent any harmful material being shown.
+The crawler also takes screenshot of visited websites and replace all NSFW images using a classifier, this is to prevent any harmful material being shown. Be aware that this classifier is not perfect, it use nsfw.js underhood.
 The crawler only accept html, stylesheets, images and fonts, other ressources requests, like scripts are intercepted and aborted to prevent any unwanted exposure.
 
 Here is the pseudo-code:
@@ -20,8 +20,10 @@ stack = daniel_websites
 while stack not empty
   website = pop stack
   visit website
+  remove_nsfw_images website
   screenshot website
   stack = stack + extractlinks website
 ```
 
 In order to speed up the crawling, multiple instances of the crawler can be launched, this is done using only one browser and multiple pages.
+
