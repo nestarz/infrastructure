@@ -20,6 +20,7 @@ stack = daniel_websites
 while stack not empty
   website = pop stack
   visit website
+  remove_nsfw_images website
   screenshot website
   stack = stack + extractlinks website
 ```
