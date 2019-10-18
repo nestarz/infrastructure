@@ -5,18 +5,18 @@ services:
     restart: always
     build: 
       context: .
-      dockerfile: "./classifier/Dockerfile"
+      dockerfile: "./server/classifier/Dockerfile"
     volumes:
-      - ./classifier/dist:/app/dist
+      - ./server/classifier/src:/app/src
     ports:
       - "8080:8080"
   browser:
     tty: true
     build:
       context: .
-      dockerfile: ./puppeteer/Dockerfile
+      dockerfile: ./server/puppeteer/Dockerfile
     volumes:
-      - "./puppeteer/:/app/"
+      - "./server/puppeteer/:/app/"
       - "./output:/output"
     depends_on:
       - tor
@@ -24,6 +24,6 @@ services:
   tor:
     build:
       context: .
-      dockerfile: ./tor/Dockerfile
+      dockerfile: ./server/tor/Dockerfile
     expose:
       - "9150"

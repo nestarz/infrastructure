@@ -1,8 +1,14 @@
 const fs = require("fs");
-const puppeteer = require("puppeteer");
+const colors = require("colors");
 const request_client = require("request-promise-native");
 
 const LEVEL = 1;
+
+const remove_duplicates = arr => {
+  const s = new Set(arr);
+  const it = s.values();
+  return Array.from(it);
+};
 
 const get_url_extension = url =>
   url
@@ -17,13 +23,13 @@ const logger = {
   warn: (level, ...input) => LEVEL > level && console.warn(...input)
 };
 
-const generate_id = (id => () => id++)(0);
+const ID = (id => () => id++)(0);
 
 const withHttp = url => (!/^https?:\/\//i.test(url) ? `http://${url}` : url);
 
 const timeout = ms => new Promise(resolve => setTimeout(resolve, ms));
 
-const getHostname = url => {
+const getHost = url => {
   try {
     return new URL(withHttp(url)).hostname;
   } catch (error) {
@@ -31,10 +37,9 @@ const getHostname = url => {
   }
 };
 
-const sameHostname = (url1, url2) => getHostname(url1) === getHostname(url2);
+const sameHostname = (url1, url2) => getHost(url1) === getHost(url2);
 
-const isOnionURL = url =>
-  getHostname(url) && getHostname(url).endsWith(".onion");
+const isOnionURL = url => getHost(url) && getHost(url).endsWith(".onion");
 
 const shuffle = array =>
   array
@@ -42,47 +47,36 @@ const shuffle = array =>
     .sort((a, b) => a[0] - b[0])
     .map(a => a[1]);
 
+const chunks = (array, parts) => {
+  let result = [];
+  for (let i = parts; i > 0; i--) {
+    result.push(array.slice(0, Math.ceil(array.length / i)));
+  }
+  return result;
+};
+
 const random = array => array[Math.floor(Math.random() * array.length)];
 
 const mkdir = path =>
   !fs.existsSync(path) && fs.mkdirSync(path, { recursive: true });
 
-const connect = async () =>
-  await puppeteer.launch({
-    headless: true,
-    ignoreHTTPSErrors: true,
-    args: [
-      "--single-process",
-      "--no-sandbox",
-      "--disable-setuid-sandbox",
-      `--proxy-server=socks5://tor:9150`,
-      "--disable-canvas-aa", // Disable antialiasing on 2d canvas
-      "--disable-2d-canvas-clip-aa", // Disable antialiasing on 2d canvas clips
-      "--disable-gl-drawing-for-tests", // BEST OPTION EVER! Disables GL drawing operations which produce pixel output. With this the GL output will not be correct but tests will run faster.
-      "--disable-dev-shm-usage", // ???
-      "--no-zygote", // wtf does that mean ?
-      "--use-gl=swiftshader", // better cpu usage with --use-gl=desktop rather than --use-gl=swiftshader, still needs more testing.
-      "--enable-webgl",
-      "--hide-scrollbars",
-      "--mute-audio",
-      "--no-first-run",
-      "--disable-infobars",
-      "--disable-breakpad",
-      //'--ignore-gpu-blacklist',
-      "--no-sandbox", // meh but better resource comsuption
-      "--disable-setuid-sandbox"
-    ]
-  });
-
 const goto = async (page, url) => {
-  // logger.log(0, "goto...");
+  logger.log(0, "goto...", url);
   await page.goto(url, {
     waitUntil: "networkidle0",
     timeout: 20000
   });
 };
 
-const cp_placeholder = fs.readFileSync("/app/cp-placeholder.base64", "utf8");
+const cache = {
+  ___value: {},
+  get(key) {
+    return this.___value[key];
+  },
+  set(key, value) {
+    this.___value[key] = value;
+  }
+};
 const newPage = async (browser, { eventRequestAbort }) => {
   logger.log(0, "new page...");
   const page = await browser.newPage();
@@ -92,9 +86,23 @@ const newPage = async (browser, { eventRequestAbort }) => {
   page.on("request", async request => {
     const ressourceType = request.resourceType();
     const url = request.url();
+    const rprevious = cache.get(url);
+    if (rprevious) {
+      console.log("previous r");
+      return rprevious();
+    }
+
+    const rabort = args => {
+      cache.set(url, () => request.abort(args));
+      request.abort(args);
+    };
+    const rcontinue = args => {
+      cache.set(url, () => request.continue(args));
+      request.continue(args);
+    };
 
     if (!["document", "stylesheet", "image", "font"].includes(ressourceType)) {
-      return request.abort();
+      return rabort();
     }
 
     if (
@@ -102,40 +110,57 @@ const newPage = async (browser, { eventRequestAbort }) => {
       url.includes(".onion/") &&
       [".jpg", ".jpeg", ".png", ".webp"].some(ext => url.includes(ext))
     ) {
-      let base64;
-      try {
-        const imagedlpage = await browser.newPage();
-        const source = await imagedlpage.goto(url);
-        base64 = (await source.buffer()).toString("base64");
-        await imagedlpage.close();
-      } catch (error) {
-        console.log("imagepage eroor");
-        return request.continue();
-      }
-
-      const type = get_url_extension(request.url());
-      const prefix = "data:" + type + ";base64,";
-      const data = prefix + base64;
-
-      const { result: predictions, error } = await request_client({
-        method: "POST",
-        uri: "http://node:8080/nsfw",
-        body: [data],
-        json: true
-      });
-
-      if (!error && (predictions.Porn > 0.3 || predictions.Sexy > 0.3)) {
-        eventRequestAbort({ type: "porn", value: predictions.Porn });
-        console.log("porn material replaced");
-        return request.continue({
+      const nsfw = await sensitiveContent(url);
+      if (nsfw.status) {
+        console.log("nsfw material replaced");
+        eventRequestAbort({ type: "nsfw", confidence: nsfw.confidence });
+        return rcontinue({
           url: cp_placeholder
         });
       }
     }
-    return request.continue();
+    return rcontinue();
   });
 
   return page;
+};
+
+const sensitiveContent = async (url, browser) => {
+  let base64;
+  try {
+    const imagedlpage = await browser.newPage();
+    const source = await imagedlpage.goto(url);
+    base64 = (await source.buffer()).toString("base64");
+    await imagedlpage.close();
+  } catch (error) {
+    console.log(
+      "downloading image error",
+      colors.red(error.toString().slice(0, 180))
+    );
+    return { status: false };
+  }
+
+  const type = get_url_extension(url);
+  const prefix = "data:" + type + ";base64,";
+  const data = prefix + base64;
+  
+  const { result: predictions, error } = await request_client({
+    method: "POST",
+    uri: "http://node:8080/nsfw",
+    body: [data],
+    json: true,
+    timeout: 2000
+  });
+
+  if (
+    !error &&
+    ((predictions.Neutral > 0.8 && predictions.Porn > 0.2) ||
+      predictions.Sexy > 0.2)
+  ) {
+    return { status: true, confidence: predictions.Porn };
+  }
+
+  return { status: false };
 };
 
 const screenshot = async (page, name, dir) => {
@@ -161,8 +186,7 @@ const getExternalSiteLinks = async (
       .filter(isOnionURL)
       .filter(
         link =>
-          !hostblacklist.includes(getHostname(link)) &&
-          !allblacklist.includes(link)
+          !hostblacklist.includes(getHost(link)) && !allblacklist.includes(link)
       )
   );
 
@@ -202,7 +226,7 @@ const getExternalSiteLinks = async (
   }
 
   if (error || depth === 10) {
-    allblacklist.push(getHostname(page.url()));
+    allblacklist.push(getHost(page.url()));
   }
   return [...external, ...subexternal];
 };
@@ -215,17 +239,28 @@ const save = (value, dir, name) => {
   logStream.write("\n");
 };
 
+const withTimeout = (millis, promise) => {
+  const timeout = new Promise((resolve, reject) =>
+    setTimeout(() => reject(`Timed out after ${millis} ms.`), millis)
+  );
+  return Promise.race([promise, timeout]);
+};
+
 module.exports = {
+  withTimeout,
   withHttp,
-  generate_id,
+  ID,
   shuffle,
+  chunks,
   mkdir,
-  connect,
   goto,
   screenshot,
   getExternalSiteLinks,
   newPage,
   save,
-  getHostname,
-  random
+  getHost,
+  random,
+  sameHostname,
+  sensitiveContent,
+  remove_duplicates
 };

@@ -11,12 +11,12 @@ RUN apt-get update && apt-get install -y \
 	build-essential \
 	g++
 
-COPY ./classifier/package.json /app
+COPY ./server/classifier/package.json /app
 
 RUN yarn global add supervisor
 RUN yarn
 
-COPY ./classifier/dist /app/dist
+COPY ./server/classifier/src /app/src
 
 EXPOSE 8080
 

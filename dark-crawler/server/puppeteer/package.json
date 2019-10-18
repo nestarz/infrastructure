@@ -1,0 +1,26 @@
+{
+  "name": "dark-crawler",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "serve": "node src/index.js"
+  },
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "colors": "^1.4.0",
+    "get-hrefs": "^4.0.0",
+    "get-urls": "^9.1.0",
+    "lodash": "^4.17.15",
+    "normalize-url": "^4.5.0",
+    "request": "^2.88.0",
+    "request-promise-native": "^1.0.7",
+    "sitemap-generator": "^8.4.1",
+    "socks-proxy-agent": "^4.0.2",
+    "socks5-http-client": "^1.0.4",
+    "url": "^0.11.0",
+    "url-regex": "^5.0.0",
+    "user-agents": "^1.0.412"
+  }
+}

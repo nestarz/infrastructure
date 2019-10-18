@@ -9,7 +9,6 @@ const Tor = (browser, parents = [], id = null) => ({
   stack: [...parents],
   visited: [],
   currentFolder: `/output/${now}/`,
-  currentItem: {},
   savePush(item) {
     console.log(`saving tree.csv`);
     utils.save(item, this.currentFolder, `tree.jsonl`);
@@ -106,7 +105,7 @@ const Tor = (browser, parents = [], id = null) => ({
 });
 
 (async () => {
-  const parents = require("./links.json")
+  const parents = require("/app/assets/links.json")
     .map(utils.withHttp)
     .map(x => ({
       parent: null,
