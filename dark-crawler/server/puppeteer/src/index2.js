@@ -1,7 +1,7 @@
 const fs = require("fs");
 const assert = require("assert");
 const colors = require("colors");
-const { getChildUrls } = require("/app/src/get-urls");
+const { getChildUrls, getImages, replaceLinks } = require("/app/src/get-urls");
 const { connect } = require("/app/src/browser");
 const { ID, getHost, showerror, getExt } = require("/app/src/utils");
 const { withHttp, shuffle, chunks, mkdir, rmdir } = require("/app/src/utils");
@@ -48,15 +48,10 @@ const Crawler = (browser, items, dir) => {
   return {
     async run() {
       const page = await browser.newPage();
-      const ressourcepages = await Promise.all(
-        [...Array(10).keys()].map(async () => {
-          const ressourcepage = await browser.newPage();
-          await ressourcepage.setViewport({ width: 100, height: 100 });
-          return ressourcepage;
-        })
-      );
+      const ressourcepage = await browser.newPage();
       await page.setRequestInterception(true);
       await page.setViewport({ width: 800, height: 600 });
+      await ressourcepage.setViewport({ width: 100, height: 100 });
       while (stack.length) {
         const point = stack.pop();
         const url = point.get("url");
@@ -65,48 +60,33 @@ const Crawler = (browser, items, dir) => {
         page.removeAllListeners();
         page.on("request", request => {
           const allow = ["document", "stylesheet", "font", "image"];
-          const type = request.resourceType();
-          const url = request.url();
-          const ext = getExt(url);
-          const isAllowed = allow.includes(type);
-          const isOnion = url.includes(".onion");
-          const isImage = ["jpg", "gif", "png", "jpeg"].includes(ext);
-          const removeNsfw = async () => {
-            await timeout(Math.random() * 100);
-            const ressourcepage =
-              ressourcepages[Math.floor(Math.random() * 10)];
-            await ressourcepage.goto(url).catch(showerror(url));
+          if (allow.includes(request.resourceType())) request.continue();
+          else request.abort();
+        });
+        const res = await page.goto(url, gotoconf).catch(showerror(url));
+        if (res) {
+          console.log(colors.green("ok"), url);
+          const images = await getImages(page);
+          for (const src of images) {
+            await timeout(500);
+            await ressourcepage.goto(src).catch(showerror(src));
             const base64 = await ressourcepage.screenshot({
               encoding: "base64"
             });
             const { result: pred, error } = await request_client({
               method: "POST",
               uri: "http://node:8080/nsfw",
-              body: [`data:image/png;base64,${base64}`],
+              body: ["data:image/png;base64," + base64],
               json: true,
-              timeout: 5000
-            }).catch(showerror(url));
-            if (error) throw Error(error);
-            if (pred.Neutral < 0.8 || pred.Porn + pred.Sexy > 0.2)
-              throw Error(colors.red("nsfw detected"));
-            console.log(colors.green("sfw"), url);
-            return true;
-          };
-          if (isImage && isOnion)
-            withTimeout(5000, removeNsfw())
-              .then(() => request.continue())
-              .catch(
-                err =>
-                  request.continue({
-                    url: cp_placeholder
-                  }) && showerror(url)(err)
-              );
-          else if (isAllowed) request.continue();
-          else request.abort();
-        });
-        const res = await page.goto(url, gotoconf).catch(showerror(url));
-        if (res) {
-          console.log(colors.green("ok"), url);
+              timeout: 2000
+            }).catch(showerror(src));
+            if (error) continue;
+            if (pred.Neutral < 0.8 || pred.Porn + pred.Sexy > 0.2) {
+              await replaceLinks(page, src, cp_placeholder);
+              console.log(colors.yellow("nsfw detected"), src);
+            }
+            console.log(colors.green("sfw"), src);
+          }
           await page.screenshot({ path: `${dir}/${host}.png` });
           await page.screenshot({ path: "/output/latest.png" });
           point.save(dir);

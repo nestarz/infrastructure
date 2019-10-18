@@ -3,6 +3,18 @@ const { sameHostname } = require("/app/src/utils.js");
 
 const unfollow = ["https:", "#", "?"];
 
+const replaceLinks = async (page, oldurl, newurl) => {
+  return await page.$$eval(
+    "a",
+    (links, { oldurl, newurl }) => {
+      links.forEach(
+        link => (link.href = link.href === oldurl ? newurl : link.href)
+      );
+    },
+    { oldurl, newurl }
+  );
+};
+
 const getLinks = async page =>
   (await page.$$eval("a", links => {
     return links.map(link => link.href);
@@ -35,4 +47,4 @@ const getChildUrls = async (page, depth = 3) => {
   return urls.sort((a, b) => levenshtein(a, url) > levenshtein(b, url));
 };
 
-module.exports = { getChildUrls, getImages };
+module.exports = { getChildUrls, getImages, replaceLinks };
