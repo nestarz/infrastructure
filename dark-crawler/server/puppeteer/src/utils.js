@@ -10,7 +10,10 @@ const remove_duplicates = arr => {
   return Array.from(it);
 };
 
-const get_url_extension = url =>
+const showerror = msg => err =>
+  console.log(colors.red(err.toString().slice(0, 180)), msg);
+
+const getExt = url =>
   url
     .split(/\#|\?/)[0]
     .split(".")
@@ -60,78 +63,20 @@ const random = array => array[Math.floor(Math.random() * array.length)];
 const mkdir = path =>
   !fs.existsSync(path) && fs.mkdirSync(path, { recursive: true });
 
-const goto = async (page, url) => {
-  logger.log(0, "goto...", url);
-  await page.goto(url, {
-    waitUntil: "networkidle0",
-    timeout: 20000
+const rmdir = path => {
+  if (!fs.existsSync(path)) return;
+  const files = fs.readdirSync(path);
+  files.forEach(element => {
+    fs.unlinkSync(path + "/" + element);
   });
+  fs.rmdirSync(path);
 };
 
-const cache = {
-  ___value: {},
-  get(key) {
-    return this.___value[key];
-  },
-  set(key, value) {
-    this.___value[key] = value;
-  }
-};
-const newPage = async (browser, { eventRequestAbort }) => {
-  logger.log(0, "new page...");
-  const page = await browser.newPage();
-  await page.setViewport({ width: 1024, height: 768 });
-
-  await page.setRequestInterception(true);
-  page.on("request", async request => {
-    const ressourceType = request.resourceType();
-    const url = request.url();
-    const rprevious = cache.get(url);
-    if (rprevious) {
-      console.log("previous r");
-      return rprevious();
-    }
-
-    const rabort = args => {
-      cache.set(url, () => request.abort(args));
-      request.abort(args);
-    };
-    const rcontinue = args => {
-      cache.set(url, () => request.continue(args));
-      request.continue(args);
-    };
-
-    if (!["document", "stylesheet", "image", "font"].includes(ressourceType)) {
-      return rabort();
-    }
-
-    if (
-      ressourceType === "image" &&
-      url.includes(".onion/") &&
-      [".jpg", ".jpeg", ".png", ".webp"].some(ext => url.includes(ext))
-    ) {
-      const nsfw = await sensitiveContent(url);
-      if (nsfw.status) {
-        console.log("nsfw material replaced");
-        eventRequestAbort({ type: "nsfw", confidence: nsfw.confidence });
-        return rcontinue({
-          url: cp_placeholder
-        });
-      }
-    }
-    return rcontinue();
-  });
-
-  return page;
-};
-
-const sensitiveContent = async (url, browser) => {
+const sensitiveContent = async (url, page, point) => {
   let base64;
   try {
-    const imagedlpage = await browser.newPage();
-    const source = await imagedlpage.goto(url);
+    const source = await page.goto(url);
     base64 = (await source.buffer()).toString("base64");
-    await imagedlpage.close();
   } catch (error) {
     console.log(
       "downloading image error",
@@ -140,10 +85,10 @@ const sensitiveContent = async (url, browser) => {
     return { status: false };
   }
 
-  const type = get_url_extension(url);
+  const type = getExt(url);
   const prefix = "data:" + type + ";base64,";
   const data = prefix + base64;
-  
+
   const { result: predictions, error } = await request_client({
     method: "POST",
     uri: "http://node:8080/nsfw",
@@ -163,82 +108,6 @@ const sensitiveContent = async (url, browser) => {
   return { status: false };
 };
 
-const screenshot = async (page, name, dir) => {
-  logger.log(0, "screenshot...");
-  await page.screenshot({ path: `${dir}/${name}.png` });
-  await page.screenshot({ path: `${dir}/latest.png` });
-};
-
-const getLinks = async page =>
-  await page.$$eval("a", links => {
-    return links.map(link => link.href);
-  });
-
-const allblacklist = [];
-const getExternalSiteLinks = async (
-  page,
-  { hostblacklist = [], dir },
-  depth = 0
-) => {
-  // logger.log(0, "evaliuating links...", depth);
-  const links = shuffle(
-    (await getLinks(page))
-      .filter(isOnionURL)
-      .filter(
-        link =>
-          !hostblacklist.includes(getHost(link)) && !allblacklist.includes(link)
-      )
-  );
-
-  const internal = links
-    .filter(link => sameHostname(link, page.url()))
-    .slice(0, 3);
-  const external = links.filter(link => !sameHostname(link, page.url()));
-
-  let subexternal = [];
-  if (depth === 0)
-    console.log(
-      `starting with ${external.length + subexternal.length} externals and ${
-        internal.length
-      } internals`
-    );
-
-  let error = false;
-  if (depth < 2) {
-    for (const link of internal) {
-      try {
-        await goto(page, link);
-        await page.screenshot({ path: `${dir}/latest.png` });
-        allblacklist.push(link);
-        subexternal = [
-          ...subexternal,
-          await getExternalSiteLinks(page, { hostblacklist }, depth + 1)
-        ];
-        if (depth === 0)
-          console.log(
-            `discovered ${subexternal.length} new links. now ${external.length +
-              subexternal.length}`
-          );
-      } catch (error) {
-        error = true;
-      }
-    }
-  }
-
-  if (error || depth === 10) {
-    allblacklist.push(getHost(page.url()));
-  }
-  return [...external, ...subexternal];
-};
-
-let logStream;
-const save = (value, dir, name) => {
-  const filename = `${dir}/${name}`;
-  logStream = logStream || fs.createWriteStream(filename, { flags: "a" });
-  logStream.write(JSON.stringify(value));
-  logStream.write("\n");
-};
-
 const withTimeout = (millis, promise) => {
   const timeout = new Promise((resolve, reject) =>
     setTimeout(() => reject(`Timed out after ${millis} ms.`), millis)
@@ -253,14 +122,34 @@ module.exports = {
   shuffle,
   chunks,
   mkdir,
-  goto,
-  screenshot,
-  getExternalSiteLinks,
-  newPage,
-  save,
+  getExt,
+  rmdir,
   getHost,
   random,
   sameHostname,
   sensitiveContent,
-  remove_duplicates
+  remove_duplicates,
+  showerror,
+  timeout
+};
+
+
+const removeNsfw = async (url) => {
+  await timeout(Math.random() * 100);
+  const source = await ressourcepage.goto(url);
+  const base64 = (await source.buffer()).toString("base64");
+  const prefix = "data:image/" + ext + ";base64,";
+  const data = prefix + base64;
+  const { result: pred, error } = await request_client({
+    method: "POST",
+    uri: "http://node:8080/nsfw",
+    body: [data],
+    json: true,
+    timeout: 2000
+  });
+  if (error) throw Error(error);
+  if (pred.Neutral < 0.8 || pred.Porn + pred.Sexy > 0.2)
+    throw Error("nsfw detected");
+  console.log("sfw");
+  return true;
 };
