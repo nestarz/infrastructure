@@ -2,12 +2,12 @@ const fs = require("fs");
 const assert = require("assert");
 const colors = require("colors");
 const puppeteer = require("puppeteer");
-const request_client = require("request-promise-native");
+const axios = require("axios");
 
 const { getChildUrls } = require("/app/src/get-urls");
 const { ID, getHost, showerror, getExt } = require("/app/src/utils");
 const { withHttp, shuffle, chunks, mkdir, rmdir } = require("/app/src/utils");
-const { withTimeout, timeout } = require("/app/src/utils");
+const { timeout } = require("/app/src/utils");
 
 const NSFW_TIMEOUT = 10000;
 const PAGE_TIMEOUT = 45000;
@@ -71,24 +71,13 @@ const Crawler = (browser, items, dir) => {
             console.log(colors.blue("Enough SFW, not classifing "), url);
             request.continue();
           } else if (isImage && isOnion) {
-            await timeout(Math.random() * NSFW_TIMEOUT / 2);
-            withTimeout(
-              NSFW_TIMEOUT,
-              request_client({
-                method: "POST",
-                uri: "http://node:8080/nsfw",
-                body: [url],
-                json: true,
+            await timeout((Math.random() * NSFW_TIMEOUT) / 2);
+            axios
+              .post("http://classifier:8080/nsfw", [url], {
                 timeout: NSFW_TIMEOUT
               })
-            )
               .then(({ data: pred, error }) => {
                 if (error) return request.abort();
-                console.log(
-                  colors.yellow(pred.Porn),
-                  colors.yellow(pred.Neutral),
-                  url
-                );
                 if (pred.Porn > 0.2 && pred.Neutral < 0.2) {
                   console.log(colors.blue("NSFW"), url);
                   request.continue({
@@ -105,7 +94,7 @@ const Crawler = (browser, items, dir) => {
         });
         const res = await page.goto(url, gotoconf).catch(showerror(url));
         if (res) {
-          console.log(colors.green("ok"), url);
+          console.log(colors.green("to"), url);
           await page.screenshot({ path: `${dir}/${host}.png` });
           await page.screenshot({ path: "/output/latest.png" });
           point.save(dir);
@@ -127,6 +116,7 @@ process.on("SIGINT", () => {
   process.exit();
 });
 const main = async () => {
+  await timeout(5000);
   const dir = `/output/latest`; // `/output/${Date.now()}`;
   rmdir(dir);
   mkdir(dir);

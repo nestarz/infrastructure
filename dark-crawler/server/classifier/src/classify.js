@@ -28,8 +28,8 @@ const toImageDataFromBase64 = async imgurl => {
 let model;
 (async () => (model = await nsfwjs.load()))();
 
-const nsfw = async img => {
-  const { imageData, error } = await toImageDataFromBase64(img);
+const nsfw = async base64 => {
+  const { imageData, error } = await toImageDataFromBase64(base64);
   if (error) throw Error(`toImageDataFromBase64 failed: ${error}`);
 
   const input = nsfwjs.imageToInput(imageData, nsfwjs.NUMBER_OF_CHANNELS);

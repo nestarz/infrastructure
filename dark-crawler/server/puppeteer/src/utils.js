@@ -33,7 +33,7 @@ const getHost = url => {
 
 const sameHostname = (url1, url2) => getHost(url1) === getHost(url2);
 
-const isOnionURL = url => getHost(url) && getHost(url).endsWith(".onion");
+const isOnion = url => getHost(url) && getHost(url).endsWith(".onion");
 
 const shuffle = array =>
   array
@@ -83,5 +83,6 @@ module.exports = {
   sameHostname,
   remove_duplicates,
   showerror,
-  timeout
+  timeout,
+  isOnion
 };
