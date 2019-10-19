@@ -23,7 +23,10 @@ services:
     depends_on:
       - tor
       - node
+    command: node src/index2.js
   tor:
+    restart: unless-stopped
+    container_name: tor-socks-proxy
     build:
       context: ./server/tor
       dockerfile: ./Dockerfile

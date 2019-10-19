@@ -26,6 +26,8 @@ const toImageDataFromBase64 = async imgurl => {
 };
 
 let model;
+(async () => (model = await nsfwjs.load()))();
+
 const nsfw = async img => {
   const { imageData, error } = await toImageDataFromBase64(img);
   if (error) throw Error(`toImageDataFromBase64 failed: ${error}`);

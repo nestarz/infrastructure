@@ -64,7 +64,7 @@ const Crawler = (browser, items, dir) => {
           const ext = getExt(url);
           const isAllowed = allow.includes(type);
           const isOnion = url.includes(".onion");
-          const isImage = ["jpg", "png", "jpeg"].includes(ext);
+          const isImage = ["jpg", "png", "jpeg", "gif"].includes(ext);
           if (isImage && isOnion && sfw.length > 5) {
             console.log(colors.blue("Enough SFW, not classifing "), url);
             request.continue();
@@ -80,9 +80,14 @@ const Crawler = (browser, items, dir) => {
                 timeout: 10000
               })
             )
-              .then(({ data: pred }) => {
-                console.log(colors.yellow(pred.Porn), url);
-                if (pred.Porn > 0.2) {
+              .then(({ data: pred, error }) => {
+                if (error) return request.abort();
+                console.log(
+                  colors.yellow(pred.Porn),
+                  colors.yellow(pred.Neutral),
+                  url
+                );
+                if (pred.Porn > 0.2 && pred.Neutral < 0.2) {
                   console.log(colors.blue("NSFW"), url);
                   request.continue({
                     url: cp_placeholder
@@ -93,8 +98,7 @@ const Crawler = (browser, items, dir) => {
                 }
               })
               .catch(err => request.abort() && showerror(url)(err));
-            }
-          else if (isAllowed) request.continue();
+          } else if (isAllowed) request.continue();
           else request.abort();
         });
         const res = await page.goto(url, gotoconf).catch(showerror(url));

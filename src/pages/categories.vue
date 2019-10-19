@@ -18,16 +18,22 @@ module.exports = {
     };
   },
   mounted() {
-    fetch(`${this.prefix}/tree.jsonl`)
-      .then(response => response.text())
-      .then(async data => {
-        this.websites = data
-          .trim()
-          .split(/\r?\n/)
-          // .slice(0, 1000)
-          .map(item => JSON.parse(item));
-        console.log(this.websites);
-      });
+    this.fetch();
+    setInterval(this.fetch, 1000);
+  },
+  methods: {
+    fetch() {
+      fetch(`${this.prefix}/tree.jsonl`)
+        .then(response => response.text())
+        .then(async data => {
+          this.websites = data
+            .trim()
+            .split(/\r?\n/)
+            // .slice(0, 1000)
+            .map(item => JSON.parse(item));
+          console.log(this.websites);
+        });
+    }
   }
 };
 </script>
@@ -36,7 +42,8 @@ module.exports = {
 .categories {
   background: dimgrey;
   display: grid;
-  grid-template-columns: 1fr 1fr 1fr;
+  grid-template-columns: repeat(auto-fill, minmax(90px, 1fr));
+  grid-auto-rows: 0fr;
   grid-gap: 1em;
   justify-content: flex-end;
   align-items: center;
