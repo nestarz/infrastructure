@@ -66,7 +66,7 @@ const Crawler = (browser, items, dir) => {
         const res = await page.goto(url, gotoconf).catch(showerror(url));
         if (res) {
           console.log(colors.green("ok"), url);
-          const images = await getImages(page);
+          const images = await getImages(await res.text());
           for (const src of images) {
             await timeout(500);
             await ressourcepage.goto(src).catch(showerror(src));

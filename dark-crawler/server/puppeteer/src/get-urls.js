@@ -1,14 +1,15 @@
 const levenshtein = require("js-levenshtein");
 const { sameHostname } = require("/app/src/utils.js");
+const cheerio = require("cheerio");
 
 const unfollow = ["https:", "#", "?"];
 
 const replaceLinks = async (page, oldurl, newurl) => {
   return await page.$$eval(
-    "a",
+    "img",
     (links, { oldurl, newurl }) => {
       links.forEach(
-        link => (link.href = link.href === oldurl ? newurl : link.href)
+        link => (link.src = link.src === oldurl ? newurl : link.src)
       );
     },
     { oldurl, newurl }
@@ -22,10 +23,16 @@ const getLinks = async page =>
     .filter(url => url.indexOf(".onion") > -1)
     .filter(url => !unfollow.some(x => url.indexOf(x) !== -1));
 
-const getImages = async page =>
-  (await page.$$eval("img", links => {
-    return links.map(link => link.src);
-  })).filter(url => url.indexOf(".onion") > -1);
+const getImages = async raw => {
+  const images = [];
+  const $ = cheerio.load(raw);
+  $("img").each(function() {
+    src = $(this).attr("src");
+    console.log(src);
+    images.push(src);
+  });
+  return images.filter(url => url.indexOf(".onion") > -1);
+};
 
 const set = arr => [...new Set(arr)];
 
