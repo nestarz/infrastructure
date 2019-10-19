@@ -15,7 +15,8 @@ The crawler only accept html, stylesheets, images and fonts, other ressources re
 Here is the pseudo-code:
 
 ```
-stack = daniel_websites
+use_proxy tor
+stack = daniel_directory
 
 while stack not empty
   website = pop stack
@@ -25,5 +26,22 @@ while stack not empty
   stack = stack + extractlinks website
 ```
 
-In order to speed up the crawling, multiple instances of the crawler can be launched, this is done using only one browser and multiple pages.
+In order to speed up the crawling, multiple instances of the crawler can be launched, this is done using only one browser and multiple pages. 
 
+### Technical details
+
+The crawler is decomposed in 4 services, orchestrated using docker-compose.
+- **Tor Socks5 proxy**: Configure a Tor proxy to be used by other services
+- **NSFW Classifier**: API with image url classification if not safe for work using nsfw.js
+- **Chrome Browser (Puppeteer)**: Crawl the web using Daniel's directory
+- **Autoheal**: Restart any unhealthy services, specially Tor proxy when the circuit seem down
+
+### Usage
+
+After installing docker, go to the dark-crawler folder and execute this command:
+
+```
+docker-compose up -d
+```
+
+Then, serve the website and you will see the dark crawler in action.
