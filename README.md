@@ -25,7 +25,15 @@ while stack not empty
   stack = stack + extractlinks website
 ```
 
-In order to speed up the crawling, multiple instances of the crawler can be launched, this is done using only one browser and multiple pages.
+In order to speed up the crawling, multiple instances of the crawler can be launched, this is done using only one browser and multiple pages. 
+
+### Technical details
+
+The crawler is decomposed in 4 services, orchestrated using docker-compose.
+- **Tor Socks5 proxy**: Configure a Tor proxy to be used by other services
+- **NSFW Classifier**: API with image url classification if not safe for work using nsfw.js
+- **Chrome Browser (Puppeteer)**: Crawl the web using Daniel's directory
+- vAutoheal**: Restart any unhealthy services, specially Tor proxy when the circuit seem down)
 
 ### Usage
 
