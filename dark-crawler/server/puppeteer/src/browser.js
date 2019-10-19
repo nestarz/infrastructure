@@ -18,33 +18,33 @@ const connect = async () =>
     headless: true,
     ignoreHTTPSErrors: true,
     args: [
-      "--disable-infobars",
-      "--window-position=0,0",
-      "--ignore-certifcate-errors",
-      "--ignore-certifcate-errors-spki-list",
       "--no-sandbox",
       "--disable-setuid-sandbox",
-      "--disable-dev-shm-usage",
-      "--disable-accelerated-2d-canvas",
-      "--disable-gpu",
-      "--hide-scrollbars",
-      "--single-process",
-      "--no-sandbox",
-      "--disable-setuid-sandbox",
-      `--proxy-server=socks5://tor:9150`,
-      "--disable-canvas-aa", // Disable antialiasing on 2d canvas
-      "--disable-2d-canvas-clip-aa", // Disable antialiasing on 2d canvas clips
-      "--disable-gl-drawing-for-tests", // BEST OPTION EVER! Disables GL drawing operations which produce pixel output. With this the GL output will not be correct but tests will run faster.
-      "--disable-dev-shm-usage", // ???
-      "--no-zygote", // wtf does that mean ?
-      "--use-gl=swiftshader", // better cpu usage with --use-gl=desktop rather than --use-gl=swiftshader, still needs more testing.
-      "--enable-webgl",
-      "--hide-scrollbars",
-      "--mute-audio",
-      "--no-first-run",
-      "--disable-infobars",
-      "--disable-breakpad",
-      "--ignore-gpu-blacklist"
+      "--proxy-server=socks5://tor:9150",
+      // "--disable-infobars",
+      // "--window-position=0,0",
+      // "--ignore-certifcate-errors",
+      // "--ignore-certifcate-errors-spki-list",
+      // "--disable-dev-shm-usage",
+      // "--disable-accelerated-2d-canvas",
+      // "--disable-gpu",
+      // "--hide-scrollbars",
+      // "--single-process",
+      // "--no-sandbox",
+      // "--disable-setuid-sandbox",
+      // "--disable-canvas-aa", // Disable antialiasing on 2d canvas
+      // "--disable-2d-canvas-clip-aa", // Disable antialiasing on 2d canvas clips
+      // "--disable-gl-drawing-for-tests", // BEST OPTION EVER! Disables GL drawing operations which produce pixel output. With this the GL output will not be correct but tests will run faster.
+      // "--disable-dev-shm-usage", // ???
+      // "--no-zygote", // wtf does that mean ?
+      // "--use-gl=swiftshader", // better cpu usage with --use-gl=desktop rather than --use-gl=swiftshader, still needs more testing.
+      // "--enable-webgl",
+      // "--hide-scrollbars",
+      // "--mute-audio",
+      // "--no-first-run",
+      // "--disable-infobars",
+      // "--disable-breakpad",
+      // "--ignore-gpu-blacklist"
     ]
   });
 

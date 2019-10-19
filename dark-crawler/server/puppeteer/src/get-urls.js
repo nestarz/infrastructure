@@ -16,12 +16,15 @@ const replaceLinks = async (page, oldurl, newurl) => {
   );
 };
 
-const getLinks = async page =>
-  (await page.$$eval("a", links => {
-    return links.map(link => link.href);
-  }))
+const getLinks = body => {
+  const $ = cheerio.load(body);
+  const links = $("a"); //jquery get all hyperlinks
+  const urls = [];
+  $(links).each((i, link) => urls.push($(link).attr("href")));
+  urls
     .filter(url => url.indexOf(".onion") > -1)
     .filter(url => !unfollow.some(x => url.indexOf(x) !== -1));
+};
 
 const getImages = async raw => {
   const images = [];

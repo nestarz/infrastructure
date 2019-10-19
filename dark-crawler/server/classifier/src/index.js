@@ -1,4 +1,6 @@
 const classify = require("./classify");
+const getBase64 = require("./base64");
+
 const fastify = require("fastify")({
   logger: true
 });
@@ -8,15 +10,27 @@ fastify.get("/", async (request, reply) => {
   return { success: 200 };
 });
 
+const cache = {};
 fastify.post("/nsfw", async (request, reply) => {
   reply.type("application/json").code(200);
-  const base64image = request.body[0];
+  const url = request.body[0];
+
+  if (cache[url]) return cache[url];
+  else if (cache.length > 1000) {
+    cache = {};
+  }
 
   try {
+    const base64image = await getBase64(url);
     const predictions = await classify.nsfw(base64image);
-    return { result: predictions };
+    console.log(url, predictions.Porn);
+    const response = { data: predictions, error: null };
+    cache[url] = response;
+    return response;
   } catch (error) {
-    return { error: error.toString() };
+    const response = { data: null, error: error.toString() };
+    cache[url] = response;
+    return response;
   }
 });
 

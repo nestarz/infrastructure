@@ -10,6 +10,8 @@ services:
       - ./server/classifier/src:/app/src
     ports:
       - "8080:8080"
+    depends_on:
+      - tor
   browser:
     tty: true
     build:
@@ -23,7 +25,9 @@ services:
       - node
   tor:
     build:
-      context: .
-      dockerfile: ./server/tor/Dockerfile
+      context: ./server/tor
+      dockerfile: ./Dockerfile
+    volumes:
+      - "./server/tor/torrc:/etc/tor/torrc"
     expose:
       - "9150"
