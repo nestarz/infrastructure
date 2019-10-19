@@ -27,3 +27,12 @@ while stack not empty
 
 In order to speed up the crawling, multiple instances of the crawler can be launched, this is done using only one browser and multiple pages.
 
+# Usage
+
+After installing docker, go to the dark-crawler folder and execute this command:
+
+```
+docker-compose up -d
+```
+
+Then, serve the website and you will see the dark crawler in action.
