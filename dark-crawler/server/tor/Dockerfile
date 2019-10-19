@@ -1,16 +1,32 @@
 FROM alpine:latest
 
-RUN echo '@edge http://dl-cdn.alpinelinux.org/alpine/edge/community' >> /etc/apk/repositories && \
-    apk -U upgrade && \
-    apk -v add tor@edge curl && \
-    chmod 700 /var/lib/tor && \
-    rm -rf /var/cache/apk/* && \
-    tor --version
+RUN set -xe \
+    && apk add --no-cache build-base \
+                          curl \
+                          git \
+                          gmp-dev \
+                          go \
+                          libgmpxx \
+                          python \
+                          python-dev \
+                          tor \
+    && curl -sSL https://bootstrap.pypa.io/get-pip.py | python \
+    && pip install fteproxy \
+                   obfsproxy \
+    && GOPATH=/tmp/obfs4 go get git.torproject.org/pluggable-transports/obfs4.git/obfs4proxy \
+        && mv /tmp/obfs4/bin/obfs4proxy /usr/bin \
+        && rm -rf /tmp/obfs4 \
+    && GOPATH=/tmp/meek go get git.torproject.org/pluggable-transports/meek.git/meek-server \
+        && mv /tmp/meek/bin/meek-server /usr/bin \
+        && rm -rf /tmp/meek \
+    && apk del build-base \
+               curl \
+               git \
+               gmp-dev \
+               go \
+               python-dev
     
-COPY ./torrc /etc/tor/
-
-HEALTHCHECK --timeout=10s --start-period=60s \
-    CMD curl --max-time 2 --fail --socks5-hostname localhost:9150 -I -L 'http://sa6pbdrbllyona5s.onion/' || exit 1
+COPY ./torrc /etc/tor/torrc
 
 EXPOSE 9150
 

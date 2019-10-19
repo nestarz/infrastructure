@@ -1,5 +1,5 @@
   
-version: '3'
+version: '3.7'
 services:
   node:
     restart: always
@@ -23,14 +23,41 @@ services:
     depends_on:
       - tor
       - node
-    command: node src/index2.js
+    command: node src/index.js
   tor:
-    restart: unless-stopped
+    image: znetstar/tor-router
     container_name: tor-socks-proxy
-    build:
-      context: ./server/tor
-      dockerfile: ./Dockerfile
-    volumes:
-      - "./server/tor/torrc:/etc/tor/torrc"
+    restart: always
     expose:
-      - "9150"
+      - "9050"
+    command: tor-router -s -d -j 10
+  # tor:
+  #   healthcheck:
+  #     test: curl --max-time 5 --fail --socks5-hostname localhost:9150 -I -L 'http://sa6pbdrbllyona5s.onion/' || exit 1
+  #     interval: 10s
+  #     timeout: 5s
+  #     start_period: 60s
+  #   restart: always
+  #   labels:
+  #     autoheal: "true"  # allow docker-autoheal to restart if unhealthy
+  #   container_name: tor-socks-proxy
+  #   build:
+  #     context: ./server/tor
+  #     dockerfile: ./Dockerfile
+  #   volumes:
+  #     - "./server/tor/torrc:/etc/tor/torrc"
+  #   expose:
+  #     - "9150"
+  # This is a stop-gap until Docker adds the capability to restart unhealthy
+  # containers natively.
+  # https://github.com/moby/moby/issues/28400
+  # https://github.com/willfarrell/docker-autoheal
+  autoheal:
+    image: willfarrell/autoheal:latest
+    restart: always
+    depends_on:
+      - tor
+    environment:
+      - AUTOHEAL_CONTAINER_LABEL=all
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock

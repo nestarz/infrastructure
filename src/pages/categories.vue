@@ -20,7 +20,7 @@ module.exports = {
   mounted() {
     this.fetch();
     setInterval(this.fetch, 1000);
-  },
+  },  
   methods: {
     fetch() {
       fetch(`${this.prefix}/tree.jsonl`)

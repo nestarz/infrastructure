@@ -1,119 +1,149 @@
-const utils = require("./utils");
+const fs = require("fs");
+const assert = require("assert");
+const colors = require("colors");
+const puppeteer = require("puppeteer");
+const request_client = require("request-promise-native");
 
-const now = Date.now();
+const { getChildUrls } = require("/app/src/get-urls");
+const { ID, getHost, showerror, getExt } = require("/app/src/utils");
+const { withHttp, shuffle, chunks, mkdir, rmdir } = require("/app/src/utils");
+const { withTimeout, timeout } = require("/app/src/utils");
 
-const Tor = (browser, parents = [], id = null) => ({
-  id: id || utils.generate_id(),
-  browser,
-  page: null,
-  stack: [...parents],
-  visited: [],
-  currentFolder: `/output/${now}/`,
-  savePush(item) {
-    console.log(`saving tree.csv`);
-    utils.save(item, this.currentFolder, `tree.jsonl`);
-  },
-  async analyze({ id, url }) {
-    try {
-      await utils.goto(this.page, url);
-    } catch (error) {
-      return { results: null, error };
-    }
+const NSFW_TIMEOUT = 10000;
+const PAGE_TIMEOUT = 45000;
 
-    const links = await utils.getExternalSiteLinks(this.page, {
-      hostblacklist: this.visited,
-      dir: this.currentFolder
-    });
-    const filtered = utils.shuffle(
-      links.map(link => ({
-        parent: url,
-        url: link
-      }))
-    );
-
-    await utils.goto(this.page, url);
-    await utils.screenshot(this.page, id, this.currentFolder);
-    return {
-      results: {
-        links: filtered,
-        lang: await this.page.evaluate(
-          () => document.querySelector("html").lang
-        )
-      },
-      error: null
-    };
-  },
-
-  async browse() {
-    while (this.stack.length) {
-      const link = this.stack.pop();
-      this.url = link;
-      this.currentItem = {
-        instance: this.id,
-        parent: link.parent,
-        url: link.url,
-        ressourceType: {}
+let logStream;
+const Point = (url, instance) => {
+  assert(typeof url === "string", Error(`url not valid ${url}`));
+  const value = {
+    url: withHttp(url),
+    instance
+  };
+  return {
+    get(key) {
+      return value[key];
+    },
+    add(data) {
+      value.details = {
+        ...data
       };
-      const hostname = utils.getHostname(link.url);
-      if (this.visited.includes(hostname)) {
-        continue;
-      }
-
-      console.log(this.id, "trying", hostname);
-      const { results, error } = await this.analyze({
-        id: hostname,
-        url: link.url
-      });
-
-      this.visited = [...this.visited, hostname];
-
-      if (error) {
-        console.log(this.id, "err", link.url, error);
-        continue;
-      }
-
-      this.currentItem = {
-        ...this.currentItem,
-        lang: results.lang
-      };
-      this.savePush(this.currentItem);
-
-      console.log(this.id, "done", hostname);
-
-      this.stack = [...this.stack, ...results.links];
-      console.log(this.id, "stack", this.stack.length);
+    },
+    save(dir) {
+      const filename = `${dir}/tree.jsonl`;
+      logStream = logStream || fs.createWriteStream(filename, { flags: "a" });
+      logStream.write(JSON.stringify(value));
+      logStream.write("\n");
     }
-  },
+  };
+};
 
-  async start() {
-    utils.mkdir(this.currentFolder);
-    this.page = await utils.newPage(this.browser, {
-      eventRequestAbort: event => {
-        this.currentItem.porn = {
-          ...(this.currentItem.porn || { value: 0, count: 0 })
-        };
-        this.currentItem.porn.value =
-          event.value > this.currentItem.porn.value
-            ? event.value
-            : this.currentItem.porn.value;
-        this.currentItem.porn.count = this.currentItem.porn.count + 1;
-      }
-    });
-    await this.browse();
-    console.log(this.id, "finished");
-  }
-});
-
-(async () => {
-  const parents = require("/app/assets/links.json")
-    .map(utils.withHttp)
-    .map(x => ({
-      parent: null,
-      url: x
-    }));
-  const instances = 5;
-  const browser = await utils.connect();
-  [...Array(instances).keys()].map(() =>
-    Tor(browser, utils.shuffle(parents)).start()
+const Crawler = (browser, items, dir) => {
+  const id = ID();
+  const InstancePoint = url => Point(url, id);
+  let stack = items.map(InstancePoint);
+  const visited = [];
+  const gotoconf = { waitUntil: "networkidle0", timeout: PAGE_TIMEOUT };
+  const cp_placeholder = fs.readFileSync(
+    "/app/assets/cp-placeholder.base64",
+    "utf8"
   );
-})();
+  return {
+    async run() {
+      const page = await browser.newPage();
+      await page.setRequestInterception(true);
+      await page.setViewport({ width: 1280, height: 800 });
+      while (stack.length) {
+        const point = stack.pop();
+        const url = point.get("url");
+        const host = getHost(url);
+        visited.push(host);
+        page.removeAllListeners();
+        const sfw = [];
+        page.on("request", async request => {
+          const allow = ["document", "stylesheet", "font", "image"];
+          const type = request.resourceType();
+          const url = request.url();
+          const ext = getExt(url);
+          const isAllowed = allow.includes(type);
+          const isOnion = url.includes(".onion");
+          const isImage = ["jpg", "png", "jpeg", "gif"].includes(ext);
+          if (isImage && isOnion && sfw.length > 5) {
+            console.log(colors.blue("Enough SFW, not classifing "), url);
+            request.continue();
+          } else if (isImage && isOnion) {
+            await timeout(Math.random() * NSFW_TIMEOUT / 2);
+            withTimeout(
+              NSFW_TIMEOUT,
+              request_client({
+                method: "POST",
+                uri: "http://node:8080/nsfw",
+                body: [url],
+                json: true,
+                timeout: NSFW_TIMEOUT
+              })
+            )
+              .then(({ data: pred, error }) => {
+                if (error) return request.abort();
+                console.log(
+                  colors.yellow(pred.Porn),
+                  colors.yellow(pred.Neutral),
+                  url
+                );
+                if (pred.Porn > 0.2 && pred.Neutral < 0.2) {
+                  console.log(colors.blue("NSFW"), url);
+                  request.continue({
+                    url: cp_placeholder
+                  });
+                } else {
+                  sfw.push(url);
+                  request.continue();
+                }
+              })
+              .catch(err => request.abort() && showerror(url)(err));
+          } else if (isAllowed) request.continue();
+          else request.abort();
+        });
+        const res = await page.goto(url, gotoconf).catch(showerror(url));
+        if (res) {
+          console.log(colors.green("ok"), url);
+          await page.screenshot({ path: `${dir}/${host}.png` });
+          await page.screenshot({ path: "/output/latest.png" });
+          point.save(dir);
+          const urls = []; // await getChildUrls(page, 0);
+          const unvisited = urls.filter(l => !visited.includes(getHost(l)));
+          const points = unvisited.map(InstancePoint);
+          stack = [...stack.filter(l => !unvisited.includes(l.url)), ...points];
+        }
+      }
+      console.log(colors.yellow("finished"), id);
+    }
+  };
+};
+
+let browser;
+process.on("SIGINT", () => {
+  console.log(colors.yellow("quitting..."));
+  browser.close();
+  process.exit();
+});
+const main = async () => {
+  const dir = `/output/latest`; // `/output/${Date.now()}`;
+  rmdir(dir);
+  mkdir(dir);
+  browser = await puppeteer.launch({
+    headless: true,
+    ignoreHTTPSErrors: true,
+    args: [
+      "--no-sandbox",
+      "--disable-setuid-sandbox",
+      "--proxy-server=socks5://tor:9050"
+    ]
+  });
+  const instances = 12;
+  const items = chunks(shuffle(require("/app/assets/links.json")), instances);
+  [...Array(instances).keys()].map(index =>
+    Crawler(browser, items[index], dir).run()
+  );
+};
+
+main();
