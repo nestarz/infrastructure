@@ -27,7 +27,7 @@ while stack not empty
 
 In order to speed up the crawling, multiple instances of the crawler can be launched, this is done using only one browser and multiple pages.
 
-# Usage
+### Usage
 
 After installing docker, go to the dark-crawler folder and execute this command:
 
