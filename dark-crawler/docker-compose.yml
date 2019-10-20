@@ -24,7 +24,7 @@ services:
     depends_on:
       - tor
       - classifier
-    # command: node src/index.js
+    command: node src/index.js
   tor:
     image: znetstar/tor-router
     container_name: tor-socks-proxy

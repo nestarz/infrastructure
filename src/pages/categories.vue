@@ -1,10 +1,19 @@
 <template>
   <div class="categories">
-    <img
-      v-for="site in websites"
-      :key="site.url"
-      :src="`${prefix}/${site.url.replace('http://', '')}.png`"
-    />
+    <div class="category">
+      <img
+        v-for="site in sfw"
+        :key="site.url"
+        :src="`${prefix}/${site.url.replace('http://', '')}.png`"
+      />
+    </div>
+    <div class="category">
+      <img
+        v-for="site in nsfw"
+        :key="site.url"
+        :src="`${prefix}/${site.url.replace('http://', '')}.png`"
+      />
+    </div>
   </div>
 </template>
 
@@ -20,7 +29,7 @@ module.exports = {
   mounted() {
     this.fetch();
     setInterval(this.fetch, 1000);
-  },  
+  },
   methods: {
     fetch() {
       fetch(`${this.prefix}/tree.jsonl`)
@@ -31,8 +40,15 @@ module.exports = {
             .split(/\r?\n/)
             // .slice(0, 1000)
             .map(item => JSON.parse(item));
-          console.log(this.websites);
         });
+    }
+  },
+  computed: {
+    sfw() {
+      return this.websites.filter(x => !(x.details && x.details.NSFW));
+    },
+    nsfw() {
+      return this.websites.filter(x => x.details && x.details.NSFW);
     }
   }
 };
@@ -41,6 +57,11 @@ module.exports = {
 <style scoped>
 .categories {
   background: dimgrey;
+  display: grid;
+  grid-template-columns: 1fr 0.5fr;
+}
+
+.category {
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(90px, 1fr));
   grid-auto-rows: 0fr;

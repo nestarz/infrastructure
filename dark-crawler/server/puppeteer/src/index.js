@@ -77,12 +77,13 @@ const Crawler = (browser, items, dir) => {
               .post("http://classifier:8080/nsfw", [url], {
                 timeout: NSFW_TIMEOUT
               })
-              .then(({ data: pred, error }) => {
+              .then(({ data: { data: pred, error } }) => {
                 if (error) return request.abort();
+                console.log(pred.Porn, url);
                 if (pred.Porn > 0.1 || pred.Neutral < 0.2 || pred.Hentai > 0.2) {
+                  console.log(colors.blue("NSFW"), url);
                   nsfw.push(url);
                   point.add({ NSFW: nsfw.length });
-                  console.log(colors.blue("NSFW"), url);
                   request.continue({
                     url: cp_placeholder
                   });
@@ -119,10 +120,10 @@ process.on("SIGINT", () => {
   process.exit();
 });
 const main = async () => {
-  await timeout(5000);
   const dir = `/output/latest`; // `/output/${Date.now()}`;
   rmdir(dir);
   mkdir(dir);
+  await timeout(5000);
   browser = await puppeteer.launch({
     headless: true,
     ignoreHTTPSErrors: true,
