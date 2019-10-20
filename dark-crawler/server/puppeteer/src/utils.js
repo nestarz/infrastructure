@@ -15,7 +15,8 @@ const getExt = url =>
     .split(/\#|\?/)[0]
     .split(".")
     .pop()
-    .trim();
+    .trim()
+    .toLowerCase();
 
 const ID = (id => () => id++)(0);
 

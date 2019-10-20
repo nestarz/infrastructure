@@ -47,7 +47,7 @@ const getChildUrls = async (page, depth = 3) => {
     .slice(0, depth);
   let childs = [];
   for (const childurl of sources) {
-    await goto(page, childurl);
+    await page.goto(childurl);
     const links = (await getLinks(page)).filter(child =>
       sameHostname(url, child)
     );

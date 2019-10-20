@@ -59,6 +59,7 @@ const Crawler = (browser, items, dir) => {
         visited.push(host);
         page.removeAllListeners();
         const sfw = [];
+        const nsfw = [];
         page.on("request", async request => {
           const allow = ["document", "stylesheet", "font", "image"];
           const type = request.resourceType();
@@ -67,7 +68,7 @@ const Crawler = (browser, items, dir) => {
           const isAllowed = allow.includes(type);
           const isOnion = url.includes(".onion");
           const isImage = ["jpg", "png", "jpeg", "gif"].includes(ext);
-          if (isImage && isOnion && sfw.length > 5) {
+          if (isImage && isOnion && sfw.length > 7) {
             console.log(colors.blue("Enough SFW, not classifing "), url);
             request.continue();
           } else if (isImage && isOnion) {
@@ -78,7 +79,9 @@ const Crawler = (browser, items, dir) => {
               })
               .then(({ data: pred, error }) => {
                 if (error) return request.abort();
-                if (pred.Porn > 0.2 && pred.Neutral < 0.2) {
+                if (pred.Porn > 0.1 || pred.Neutral < 0.2 || pred.Hentai > 0.2) {
+                  nsfw.push(url);
+                  point.add({ NSFW: nsfw.length });
                   console.log(colors.blue("NSFW"), url);
                   request.continue({
                     url: cp_placeholder
