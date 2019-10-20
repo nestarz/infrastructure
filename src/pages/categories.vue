@@ -1,15 +1,9 @@
 <template>
   <div class="categories">
-    <div class="category">
+    <div class="category" v-for="category in categories" :key="category.title">
       <img
-        v-for="site in sfw"
-        :key="site.url"
-        :src="`${prefix}/${site.url.replace('http://', '')}.png`"
-      />
-    </div>
-    <div class="category">
-      <img
-        v-for="site in nsfw"
+        tabindex="0"
+        v-for="site in category.sites"
         :key="site.url"
         :src="`${prefix}/${site.url.replace('http://', '')}.png`"
       />
@@ -44,11 +38,17 @@ module.exports = {
     }
   },
   computed: {
-    sfw() {
-      return this.websites.filter(x => !(x.details && x.details.NSFW));
-    },
-    nsfw() {
-      return this.websites.filter(x => x.details && x.details.NSFW);
+    categories() {
+      return [
+        {
+          title: "SFW",
+          sites: this.websites.filter(x => !(x.details && x.details.NSFW))
+        },
+        {
+          title: "NSFW",
+          sites: this.websites.filter(x => x.details && x.details.NSFW)
+        }
+      ];
     }
   }
 };
@@ -74,6 +74,14 @@ module.exports = {
 
 img {
   width: 100%;
+  cursor: pointer;
+}
+
+img:focus {
+  width: 80vw;
+  z-index: 999;
+  position: fixed;
+  left: 1em;
 }
 
 .overlay {
