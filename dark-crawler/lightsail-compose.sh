@@ -1,5 +1,7 @@
 #!/bin/bash
 
+sudo apt-get install git -y
+
 # install latest version of docker the lazy way
 curl -sSL https://get.docker.com | sh
 
@@ -14,12 +16,13 @@ chmod +x /usr/local/bin/docker-compose
 # if you change this, change the systemd service file to match
 # WorkingDirectory=[whatever you have below]
 mkdir /srv/docker
-curl -o /srv/docker/docker-compose.yml https://raw.githubusercontent.com/nestarz/infrastructure/master/dark-crawler/docker-compose.yml
 
-# copy in systemd unit file and register it so our compose file runs 
-# on system restart
-curl -o /etc/systemd/system/docker-compose-app.service https://raw.githubusercontent.com/nestarz/infrastructure/master/dark-crawler/docker-compose-app.service
+git clone https://github.com/nestarz/infrastructure /srv/docker
+
+cd /srv/docker/dark-crawler
+
+cp ./docker-compose-app.service /etc/systemd/system/docker-compose-app.service
 systemctl enable docker-compose-app
 
 # start up the application via docker-compose
-docker-compose -f /srv/docker/docker-compose.yml up -d
+docker-compose -f docker-compose.yml up -d
