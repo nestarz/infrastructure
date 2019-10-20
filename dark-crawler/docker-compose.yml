@@ -26,9 +26,9 @@ services:
     depends_on:
       - tor
       - classifier
-    # command: >
-    #   node src/index.js > src/browser.log
-    #   websocketd --port=8080 tail -f src/browser.log
+    command: >
+      node src/index.js > src/browser.log
+      websocketd --port=8080 tail -f src/browser.log
   tor:
     image: znetstar/tor-router
     container_name: tor-socks-proxy
