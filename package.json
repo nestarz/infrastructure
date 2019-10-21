@@ -31,11 +31,11 @@
   },
   "@pika/web": {
     "webDependencies": [
-      "vue/dist/vue.esm.browser.js",
+      "vue",
+      "remarkable",
+      "typeit",
+      "vue-router",
       "http-vue-loader/src/httpVueLoader.js",
-      "remarkable/dist/esm/index.browser.js",
-      "typeit/dist/typeit.min.js",
-      "vue-router/dist/vue-router.esm.browser.js",
       "aframe/dist/aframe-v0.9.2.min.js",
       "aframe-forcegraph-component/dist/aframe-forcegraph-component.min.js",
       "aframe-geo-projection-component/dist/aframe-geo-projection-component.min.js",

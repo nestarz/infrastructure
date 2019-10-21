@@ -1,5 +1,10 @@
 var isDragging = null;
-const unitMap = { em: { x: 'em', y: 'em' }, px: { x: 'px', y: 'px' }, vp: { x: 'vw', y: 'vh' }, percent: { x: '%', y: '%' } }
+const unitMap = {
+  em: { x: "em", y: "em" },
+  px: { x: "px", y: "px" },
+  vp: { x: "vw", y: "vh" },
+  percent: { x: "%", y: "%" }
+};
 
 const onDragged = ({
   el,
@@ -14,16 +19,24 @@ const onDragged = ({
   unit
 }) => {
   if (first) {
+    el.style.cursor = "grabbing";
     isDragging = true;
     return;
   }
   if (last) {
     isDragging = false;
+    el.style.cursor = "grab";
     return;
   }
   const fontSize = parseFloat(window.getComputedStyle(el).fontSize);
-  el.style.left = parseFloat(el.style.left || 0) + deltaX / 6 + unitMap[unit].x;
-  el.style.top = parseFloat(el.style.top || 0) + deltaY / 7 + unitMap[unit].y;
+  el.style.left =
+    parseFloat(el.style.left || 0) +
+    deltaX / (window.innerWidth / 100) +
+    unitMap[unit].x;
+  el.style.top =
+    parseFloat(el.style.top || 0) +
+    deltaY / (window.innerHeight / 100) +
+    unitMap[unit].y;
   el.style.position = "absolute";
 
   var positions = JSON.parse(localStorage.positions || "{}");
@@ -54,12 +67,25 @@ var draggedElem;
 const directive = {
   inserted(el, binding, vnode) {
     if (!document) return;
-    const defaultValue = { onDragged, unit: 'percent' };
+    el.style.cursor = "grab";
+    el.addEventListener("mousemove", e => {
+      const event = new CustomEvent("dragged", {
+        detail: {
+          id: el.id
+        },
+        bubbles: true
+      });
+      el.dispatchEvent(event);
+    });
+
+    const defaultValue = { onDragged, unit: "percent" };
     const value = {
-      ...defaultValue, ...typeof binding.value === "function" ?
-        { onDragged: binding.value } :
-        (typeof binding.value === 'object' ?
-          binding.value : {})
+      ...defaultValue,
+      ...(typeof binding.value === "function"
+        ? { onDragged: binding.value }
+        : typeof binding.value === "object"
+        ? binding.value
+        : {})
     };
     if (localStorage.positions) {
       const positions = JSON.parse(localStorage.positions);
@@ -80,7 +106,7 @@ const directive = {
         first: true,
         clientX: evt.clientX,
         clientY: evt.clientY,
-        unit: value.unit,
+        unit: value.unit
       });
       draggedElem = el;
     }
@@ -93,7 +119,7 @@ const directive = {
         last: true,
         clientX: evt.clientX,
         clientY: evt.clientY,
-        unit: value.unit,
+        unit: value.unit
       });
       draggedElem = null;
     }
@@ -116,7 +142,7 @@ const directive = {
           offsetY,
           clientX,
           clientY,
-          unit: value.unit,
+          unit: value.unit
         });
         el.lastCoords = {
           x: evt.clientX,
@@ -146,7 +172,7 @@ const directive = {
 
 const defaultOptions = {};
 export default {
-  install: function (Vue, options) {
+  install: function(Vue, options) {
     options = Object.assign({}, defaultOptions, options);
     let major = Number(Vue.version.split(".")[0]);
     let minor = Number(Vue.version.split(".")[1]);
