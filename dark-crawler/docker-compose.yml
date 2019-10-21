@@ -3,10 +3,10 @@ version: '3.3'
 services:
   classifier:
     restart: always
-    # image: necka/nsfw-classifier
-    build: 
-      context: .
-      dockerfile: "./server/classifier/Dockerfile"
+    image: necka/nsfw-classifier
+    #build: 
+    #  context: .
+    #  dockerfile: "./server/classifier/Dockerfile"
     volumes:
       - ./server/classifier/src:/app/src
     ports:
