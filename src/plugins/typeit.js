@@ -1,4 +1,4 @@
-import TypeIt from "/web_modules/typeit/dist/typeit.min.js";
+import TypeIt from "/web_modules/typeit.js";
 
 export default {
   install: function(Vue, options) {

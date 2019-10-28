@@ -1,5 +1,10 @@
 <template>
   <artboard>
+    <div v-dragged id="Title">Infrastructure</div>
+    <div
+      v-dragged
+      id="Title-1"
+    >If domain names are server addreses, what authority legitimate the name ?</div>
     <div v-dragged id="Layer1">
       This document is a product of the Internet Engineering Task Force
       (IETF). It represents the consensus of the IETF community. It has

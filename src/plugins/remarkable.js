@@ -1,4 +1,4 @@
-import { Remarkable } from "/web_modules/remarkable/dist/esm/index.browser.js";
+import { Remarkable } from "/web_modules/remarkable.js";
 
 export default {
   install: function(Vue, options) {

@@ -1,33 +1,36 @@
 <template>
   <div class="artboard">
     <div class="sketch" @dragged="focus">
-      <slot />
+      <slot></slot>
+      <textarea v-for="text in texts" :key="text.id" v-dragged :id="text.id" v-model="text.text"></textarea>
     </div>
     <div class="tools" tabindex="0" :class="{ open }">
       <div class="header option" @click="toggle">
-        <div>Artboard</div>
-        <div>
-          <div class="button plus">+</div>
-          <div class="button minus">-</div>
-        </div>
+        <div class="title">Artboard</div>
+        <div class="button plus">+</div>
+        <div class="button minus">-</div>
       </div>
       <div class="option">
-        <div>Config JSON</div>
-        <div>
-          <div class="button">C</div>
-          <a class="button" :href="positionsBase64" download="Artboard.json">S</a>
-        </div>
+        <div class="title">Config JSON</div>
+        <div class="button">C</div>
+        <a class="button" :href="positionsBase64" download="Artboard.json">S</a>
       </div>
       <div class="json">
         <textarea readonly v-model="positionsStr"></textarea>
       </div>
       <div class="option">
-        <div>Layers</div>
+        <div class="title">Tools</div>
+      </div>
+      <div class="toolbox">
+        <div class="button" @click="newText">T</div>
+      </div>
+      <div class="option">
+        <div class="title">Layers</div>
       </div>
       <select class="layer" v-model="selected">
         <option
           class="name"
-          v-for="([layer, value], index) in Object.entries(positions)"
+          v-for="([layer, value]) in Object.entries(positions)"
           v-bind:value="{layer, value}"
           :key="layer"
         >{{ layer }}</option>
@@ -53,6 +56,7 @@
 module.exports = {
   data() {
     return {
+      texts: [],
       positions: JSON.parse(localStorage.positions || "{}"),
       open: true,
       selected: null,
@@ -92,6 +96,13 @@ module.exports = {
     },
     toggle() {
       this.open = !this.open;
+    },
+    newText() {
+      console.log(this.texts)
+      this.texts.push({
+        id: Math.random(),
+        text: "Test"
+      });
     }
   }
 };
@@ -137,6 +148,7 @@ module.exports = {
 .tools .plus,
 .tools.open .minus {
   display: inline;
+  margin: 0 1em;
 }
 
 .header {
@@ -148,8 +160,11 @@ module.exports = {
   text-transform: uppercase;
   font-size: 1em;
   display: flex;
-  justify-content: space-between;
   user-select: none;
+}
+
+.title {
+  margin-right: auto;
 }
 
 .option > div {
@@ -160,8 +175,9 @@ module.exports = {
 .button {
   display: inline;
   padding: 0.5em 1em;
-  padding-left: 0;
+  padding-left: 1em;
   cursor: pointer;
+  background: rgb(56, 56, 56);
 }
 
 select {
@@ -174,7 +190,7 @@ select {
   filter: brightness(2);
 }
 
-textarea {
+.tools textarea {
   width: 100%;
   box-sizing: border-box;
   background: rgb(41, 41, 41);
@@ -190,11 +206,10 @@ textarea {
   display: grid;
   grid-template-columns: 60px 1fr;
   background: rgb(56, 56, 56);
-  grid-gap: 1em;
 }
 
 .fieldset.add {
-  grid-template-columns: 60px 47% 10px;
+  grid-template-columns: 20% 60% 20%;
   margin-top: 7px;
 }
 
@@ -213,5 +228,11 @@ textarea {
 .layer .name {
   white-space: nowrap;
   overflow: hidden;
+}
+
+.sketch textarea {
+  background: none;
+  color: inherit;
+  border: none;
 }
 </style>
