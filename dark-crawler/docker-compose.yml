@@ -27,13 +27,15 @@ services:
     depends_on:
       - tor
       - classifier
-    command: >
-      node src/index.js > src/browser.log
-      websocketd --port=8080 tail -f src/browser.log
+    # command: >
+    #   sh -c "node src/index.js > src/browser.log &&
+    #          websocketd --port=8080 tail -f src/browser.log"
   tor:
-    image: znetstar/tor-router
+    image: dperson/torproxy
     container_name: tor-socks-proxy
     restart: always
+    ports: 
+      - "9050:9050"
+      - "8118:8118"
     expose:
       - "9050"
-    command: tor-router -s -d -j 10

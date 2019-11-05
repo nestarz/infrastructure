@@ -1,0 +1,14 @@
+longitude,latitude,name,type,creation_date,initial
+38.910528,-77.44325,American Registry for Internet Numbers,RIR,,ARIN
+20.243056,57.491667,African Network Information Centre,RIR,,ANIC
+-27.467778,153.028056,Asia Pacific Network Information Centre,RIR,,APNIC
+-34.883611,-56.181944,Latin America and Caribbean Network Information Centre,RIR,,LACNIC
+52.366667,4.9,Réseaux IP Européens Network Coordination Centre,RIR,,RIENCC
+39.96,116.2983,China Internet Network Information Center,NIR,,CINIC
+35.033333,126.716667,Korea Internet & Security Agency,NIR,2009-07-01T00:00:00.000Z,KISA
+25.066667,121.516667,Taiwan Network Information Center,NIR,,TNIC
+28.613889,77.208889,Indian Registry for Internet Names and Numbers,NIR,,IRINN
+21.028889,105.8525,Vietnam Internet Network Information Center,NIR,,VINIC
+25.666667,-100.3,Network Information Centre Mexico,NIR,,NICM
+-23.55,-46.633333,Brazilian Network Information Center,NIR,,BNIC
+33.976389,-118.419444,Internet Corporation for Assigned Names and Numbers,IR,,ICANN
