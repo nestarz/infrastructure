@@ -3528,10 +3528,10 @@ p-pipe@^1.1.0:
   resolved "https://registry.yarnpkg.com/p-pipe/-/p-pipe-1.2.0.tgz#4b1a11399a11520a67790ee5a0c1d5881d6befe9"
   integrity sha1-SxoROZoRUgpneQ7loMHViB1r7+k=
 
-papaparse@^5.1.0:
-  version "5.1.0"
-  resolved "https://registry.yarnpkg.com/papaparse/-/papaparse-5.1.0.tgz#6228e8d96de99630ad017cf6522042319facc5eb"
-  integrity sha512-3jEYMiCc8qN7V5ffi2BTS2mRauKxCu5AIED6DxbjnHhIm7OY7fzKYkndfPlHWaaKUDCTml5XTU6V+hiuxGlZuw==
+papaparse@^5.2.0:
+  version "5.2.0"
+  resolved "https://registry.yarnpkg.com/papaparse/-/papaparse-5.2.0.tgz#97976a1b135c46612773029153dc64995caa3b7b"
+  integrity sha512-ylq1wgUSnagU+MKQtNeVqrPhZuMYBvOSL00DHycFTCxownF95gpLAk1HiHdUW77N8yxRq1qHXLdlIPyBSG9NSA==
 
 parse-bmfont-ascii@^1.0.3:
   version "1.0.6"
